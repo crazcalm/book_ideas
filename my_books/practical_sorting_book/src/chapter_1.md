@@ -21,4 +21,72 @@ With this definition in mind, are the lists [1,2,3,4,5] and [5,4,3,2,1] ordered?
 When it comes to order, the focus is on being able to create a logical arrangement of your items. So even if a list does not look ordered, it could be the case that order it following a logical arrangement that we are not used to seeing. For example, the list [3,1,2,4,5] could be unordered, or it could be a sorted list where 3s get priority and all other numbers get arranged in ascending order. 
 
 
-## How is sorting done in Rust
+TODO: re-write the above and add a conclusion statement.
+
+## The first step in Sorting
+
+Sorting involves arranging items in a logical order. However, you can only order items that can be compared. So the first step in sorting, is making sure that the items you want to sort can be compared to one other.
+
+In Rust, we can only compare items if they are of the same type. This means that if you check if 1 is greater than 2, you will get false.
+
+```rust
+println!("{} > {} = {}", 1, 2, 1 > 2);
+```
+
+But if you check if 1 is greater than 'a' (char), you will get a mismatched type error.
+
+```rust,should_panic
+println!("{} > {} = {}", 1, 'a', 1 > 'a');
+```
+
+Once you know the items you are working with can be compared, then you can put them into a vector and use the sort method to sort them.
+
+It should be noted that the vector has to be mutable because the act sorting will rearrange the items in the vector.
+
+```rust
+let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+list.sort();
+println!("{:?}", list);
+
+//output: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+In the above example, when we print out the list, we use `{:?}`. This is because Vectors do not implement the Display Trait, which means that we cannot use `{}` when printing out our list. We are allowed to use `{:?}` when printing because Vectors implement the Debug Trait, which allows us to print the debugging context for an object.
+
+
+Another way to sort a vector of items is by using the `sort_by` method. This method takes a function that takes two items and returns an Ordering Enum, which has three Variants; Less, Equal and Greater. The returned Ordering Enum is used to denote how these two items compare to each other.
+
+```rust
+let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+list.sort_by(|a, b| a.cmp(b));
+println!("{:?}", list);
+
+//output: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+In the above example, we pass a closure function into that accepts the parameters a and b. In the body of the closure, we compare a to be with the `cmp` method. The `cmp` function, which it defined for the type itself, will return Ordering::Less, Ordering::Equal, or Ordering::Greater.
+
+Though this makes sense, where did this `cmp` method come from?
+
+Earlier in the chapter, I said that you can only order items that can be compared. In Rust, this means that the item implements the Ord Trait, which ensures that the type of item that you are working with has the methods needed to be compared to another instance of that type.
+
+Coming back to the Ordering Enum, we talked about it as a return value, but it also has a useful API. For example, if you want to sort an array in decreating order, you may be tempted to sort the vector and then reverse it. 
+
+```rust
+let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+list.sort();
+list.reverse();
+println!("{:?}", list);
+
+//output: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+```
+
+Though this works, another way to get the same result is to call the reverse method on the Ordering Enum:
+
+```rust
+let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+list.sort_by(|a, b| a.cmp(b).reverse());
+println!("{:?}", list);
+
+//output: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+```
+
+TODO: Add exercises to compare objects and sort them
