@@ -89,4 +89,38 @@ println!("{:?}", list);
 //output: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
 ```
 
+Keep in mind that the `sort_by` mandates that you return a Ordering Enum, but that does not means that the body of the function closure needs to call a method that returns an Ordering Enum.
+
+Here is an example where the closure body explicitly returns an Ordering Enum based on the logic in the body.
+
+```rust
+use std::cmp::Ordering;
+
+fn main() {
+    let mut list: Vec<i32> = vec![3,2,5,1,6,7,8,0,9,4];
+    
+	list.sort_by(|a, b| {
+	
+	let a_is_odd = a.abs() % 2 == 1;
+	let b_is_odd = b.abs() % 2 == 1;
+	
+	if a_is_odd && b_is_odd {
+	    a.cmp(b)
+	} else if a_is_odd {
+	    Ordering::Less
+	} else if b_is_odd {
+	    Ordering::Greater
+	} else {
+	    a.cmp(b)
+	}
+    });
+    
+	println!("{:?}", list);
+
+    //output: [1, 3, 5, 7, 9, 0, 2, 4, 6, 8]    
+}
+```
+
+TODO: meantion unstable sort
+
 TODO: Add exercises to compare objects and sort them
