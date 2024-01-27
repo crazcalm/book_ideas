@@ -91,7 +91,7 @@ println!("{:?}", list);
 
 Keep in mind that the `sort_by` mandates that you return a Ordering Enum, but that does not means that the body of the function closure needs to call a method that returns an Ordering Enum.
 
-Here is an example where the closure body explicitly returns an Ordering Enum based on the logic in the body.
+Here is an example where the closure body explicitly returns an Ordering Enum based on the logic in the body. We first define whether `a` or `b` is odd and then we do a series of checks. If `a` and `b` or odd, we want to place them in ascending order, but if `a` or `b` is not odd, than we want to place the odd number in front of the even number. We do this by stating that the odd number is less than the even number.
 
 ```rust
 use std::cmp::Ordering;
@@ -121,6 +121,28 @@ fn main() {
 }
 ```
 
-TODO: meantion unstable sort
+Another sorting method you can use is called `sort_by_key`. This method takes in function that that accepts a single paramter `a`. The goal of the function is to do a computation on `a` that returns a value of type `K` that implements the Ord trait. The reason that the return value has to implement the Ord trait is beause `sort_by_key` is going to use your function `f` to get the Ordering Enum from checking whether or not `f(a)` is less than `f(b)`. That computation looks like this: `f(a).lt(&f(b))`.
+
+For example, if you wanted to sort a vector of [-10, -7, -3, 0, 3, 7, 10] by their return values `x mod 7`, you can do the following:
+
+```rust
+fn main(){
+	let mut list: Vec<i32> = vec![-10, -7, -3, 0, 3, 7, 10];
+	list.sort_by_key(|x| x.rem_euclid(7));
+	
+	println!("{:?}", list)
+	
+	//output: [-7, 0, 7, 3, 10, -10, -3]
+}
+```
+
+If your function `f` is computaionally expensive and you believe that cahing previously computed results may speed up the process, then you should consider using `sort_by_cached_key` instead.
+
+
+One question we have not considered it, what happens when you compare two or more items and, based on the comparison method you chose, they are equal? How should they be sorted? In theory, any ordering of these items would be correct. However, in practice, we have two options; unstable sort, and stable sort.
+
+Unstable sort means that these equal items can appear in any order. Stable sort means that the order they were in originally will be preserved once they are sorted.
+
+The benefit of using unstable sorting is that it is generally faster than stable sorting. The benefit of using stable sorting is that the same imput will always give your the same output. Up until now, we have only looked at stable sorts (`sort`, `sort_by`, `sort_by_key` and `sort_by_cached_key`), but most of the sorting methods we looked at have an unstable counterpart (`sort_unstable`, `sort_unstable_by`, `sort_unstable_by_key`).
 
 TODO: Add exercises to compare objects and sort them
