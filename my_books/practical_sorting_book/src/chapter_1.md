@@ -201,3 +201,28 @@ You can replicate the default sort yourself by using the `sort_by` method and th
 ```
 
 In the above example, we use the `cmp` method to compare the first element of Tuples `a` and `b`. The `cmp` method returns an Ordering Enum. The Ordering Enum has a `then` method that allows us to chain orderings together when the initial `cmp` result is not Ordering::Equal.
+
+Though there are multiple dimentions, you can still sort by a single dimention by picking a property to sort on and ignoring the rest. In the following example, we will take a list of employees and sort them by how many years they have been with the company in descending order.
+
+```rust
+let mut list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+];
+
+list.sort_by(|a, b| a.1.cmp(&b.1).reverse());
+    
+println!("{:?}", list);
+
+//output: [("Jovanna", 5), ("Marcus", 2), ("Carmen", 2), ("Christy", 2), ("Jerry", 1), ("Dillon", 0)]
+```
+When looking at the output of the example, you will notice that employees that have worked the same number of years are not presented in alphabetical order. This is intentional because we ignored any sorting of the employees name.
+
+
+# TODO: Add exercises
+
+# Chapter X + 2: Structs -- Ordering Your structs
