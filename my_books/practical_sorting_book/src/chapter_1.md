@@ -146,3 +146,58 @@ Unstable sort means that these equal items can appear in any order. Stable sort 
 The benefit of using unstable sorting is that it is generally faster than stable sorting. The benefit of using stable sorting is that the same imput will always give your the same output. Up until now, we have only looked at stable sorts (`sort`, `sort_by`, `sort_by_key` and `sort_by_cached_key`), but most of the sorting methods we looked at have an unstable counterpart (`sort_unstable`, `sort_unstable_by`, `sort_unstable_by_key`).
 
 TODO: Add exercises to compare objects and sort them
+
+# Chatper X + 1
+
+Up until now, we have been talking about sorting on a single dimention. What I means by that is, we've taken a vector of items of type X and type X only has one value to sort by and we have sorted the vector. This is single dimentional because Type X only has one value to sort by.
+
+For our first step into the multidimentional space, I want us to talk about Tuples.
+
+A Tuple is a finte heterogeneous sequence. Finite sequence meaning that there are a finite number of elements in a tuple, and heterogenous meaning that each element can be of a differnt type.
+
+For example, if I wanted to collect a person's first name and age, I could represent that in a tuple where the first element of the tuple is a &str and the second element of the tuple is a u32.
+
+```rust
+	let person: (&'str, u32) = ("Marcus", 36);
+	
+	println!("{:?}", person);
+```
+
+Our Person is two demential because we have two properties we can sort by; name and age.
+
+In Rust, Tuples implement the Ord Trait for Tuples where each element of the tuple also implements the Ord Trait (Note: This is true for Tuples of 12 or less elements. 12 is not special and may change in the future). This means that if we have a vector of Tuples, we can sort them. By default, tuples are sorted one item at a time in order from left to right comparing the left element first and, if they are equal, comparing the next element in the tuple.
+
+```rust
+	let mut test = vec![
+		("a", 1),
+		("ab", 0),
+		("b", 2),
+		("a", 0),
+		("ba", 0),
+	];
+    test.sort();
+
+    println!("{:?}", test);
+	
+	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
+```
+
+You can replicate the default sort yourself by using the `sort_by` method and the appropriate closure function.
+
+```rust
+    let mut test = vec![
+		("a", 1),
+		("ab", 0),
+		("b", 2),
+		("a", 0),
+		("ba", 0),
+	];
+
+    test.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+    
+	println!("{:?}", test);
+
+	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
+```
+
+In the above example, we use the `cmp` method to compare the first element of Tuples `a` and `b`. The `cmp` method returns an Ordering Enum. The Ordering Enum has a `then` method that allows us to chain orderings together when the initial `cmp` result is not Ordering::Equal.
