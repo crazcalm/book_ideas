@@ -225,4 +225,94 @@ When looking at the output of the example, you will notice that employees that h
 
 # TODO: Add exercises
 
-# Chapter X + 2: Structs -- Ordering Your structs
+# Chapter X + 2: Structs -- Sorting Your structs
+The great thing about sorting structs, is that the rules for sorting structs is the same as the rules for sorting eveything numbers and tuples.
+
+For example, lets create an employee struct with two fields; name, years_of_service.
+
+```rust
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+```
+
+This struct holds the same information that was containted in the tuples of our previous example, but there are some differences. One difference is that the struct has field names. For example, when using the tuple we accessed the employee name via its index in the tuple (tuple.0) whereas, for the struct, we would access the name of the employee by calling the name property on the struct instance.
+
+Another difference between the struct version of Employee and the tuple version is that tuple version came with a number of default implementation for Traits and struct version has no default Trait implementations, which means we cannot do things like print instances of employees (Debug Trait) or compare two instances of employees (Ord Trait).
+
+When implementing a Trait for a struct, you have to create an `impl` block that states the Trait you are implementing, the struct you are implementing it for, and, within the block, you must implement all of the mandatory methods for that Trait.
+
+For example, the Debug Trait has one required method that must be implemented. To implment Debug for our Employee Struct, we would do the following:
+
+```rust
+use std::fmt;
+
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+
+impl fmt::Debug for Employee {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Employee")
+         .field("name", &self.name)
+         .field("years_of_service", &self.years_of_service)
+         .finish()
+    }
+}
+
+fn main(){
+	let marcus = Employee(name: "Marcus".to_string(), years_of_service: 2);
+	println!("{:?}", marcus);
+}
+```
+
+Implementing the Debug trait once is okay, but I would hate to have to do this for every Struct I create. Luckily, Rust provides us a way to automatically generate commonly used traits. We do this with the derive attribute, which allows us to pass in a list of Traits we would like to generate a default implementation for (Note: the [Rust Book](https://doc.rust-lang.org/book/appendix-03-derivable-traits.html) lists the traits that we can use Dervie with).
+
+```
+#[derive(Debug)]
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+
+fn main(){
+	let marcus = Employee(name: "Marcus".to_string(), years_of_service: 2);
+	println!("{:?}", marcus);
+	
+	// TODO: Add output
+}
+```
+
+The Ord trait, which is required for sorting, is a super trait. This mean this trait has its own implementation block for itself and it also requires that you implment other traits as well. The Ord Trait requires that the Eq Trait and the PartialOrd trait be implemented as well (Note: The Eq Trait is also a super trait and it requires the PartialEq triat). Lucky for us, we are allowed to derived the default implementation for all of these traits.
+
+```rust
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+
+fn main() {
+    let mut list = vec![
+		("Marcus", 2),
+		("Jovanna", 5),
+		("Carmen", 2),
+		("Christy", 2),
+		("Dillon", 0),
+		("Jerry", 1)
+    ];
+
+    let mut list_of_employees: Vec<Employee> = list.iter()
+		.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+		.collect();
+
+    list_of_employees.sort();
+    
+	println!("{:?}", list_of_employees);
+}
+```
+
+In the above example, we derive all the Traits we nned to com
+
