@@ -295,7 +295,7 @@ struct Employee {
 }
 
 fn main() {
-    let mut list = vec![
+    let list = vec![
 		("Marcus", 2),
 		("Jovanna", 5),
 		("Carmen", 2),
@@ -310,9 +310,100 @@ fn main() {
 
     list_of_employees.sort();
     
-	println!("{:?}", list_of_employees);
+	println!("{:#?}", list_of_employees);
+	
+	//output: [
+		Employee {
+			name: "Carmen",
+			years_of_service: 2,
+		},
+		Employee {
+			name: "Christy",
+			years_of_service: 2,
+		},
+		Employee {
+			name: "Dillon",
+			years_of_service: 0,
+		},
+		Employee {
+			name: "Jerry",
+			years_of_service: 1,
+		},
+		Employee {
+			name: "Jovanna",
+			years_of_service: 5,
+		},
+		Employee {
+			name: "Marcus",
+			years_of_service: 2,
+		},
+	]
 }
 ```
 
-In the above example, we derive all the Traits we nned to com
+In the above example, we derive all the Traits we need to implement the Ord Trait (including the Ord Trait itself) and, as a result, we are now able to sort a list of Employee instances.
 
+To create the list of employee instance, we actually took the Vector of tuples that had the employee infomation, iterated of it, called a `map` and passed a closure that will take each tuple and use it to create an instance of Employee. Iterators are lazy in Rust meaning that they will not be evaluated until something consumes the iterator (ie calls `next` until there are no more items to iterator over). We do that by calling the `collect` method, can transform any iterator into a collection. 
+
+One question you should ask is, "How does collect know what collection to turn the iterator into?". The trick to the `collect` method is that you have to specify the type of collection you want either by setting the type of the result. Two common ways of doing this is by setting the type for the variable like we did in this example (`let mut list_of_employess: Vec<Employee> = ...`) or by using the turbofish (`.collect::<Vec<Employee>>`).
+
+Once we have the list of employee instances, we call `sort` on the vector. Then we used the pretty print debug syntax (`println(:#?)`) to print the list.
+
+The list is sorted by `name` and then `years_of_service`. The reason as to why it is sorted this way is because the automatically derived implementation of our trait typically start from the first defined field of the struct, apply their logic, and then go on to the next field if needed. In our case, we sorted by `name` first and then `years_of_service` because that was the order of how the fields where defined in the struct.
+
+If we switch the ordering of the fields, you will see that the ordering also changes.
+
+```rust
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+struct Employee {
+    years_of_service: u32,
+    name: String,
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);    
+}
+
+	//output: [
+		Employee {
+			years_of_service: 0,
+			name: "Dillon",
+		},
+		Employee {
+			years_of_service: 1,
+			name: "Jerry",
+		},
+		Employee {
+			years_of_service: 2,
+			name: "Carmen",
+		},
+		Employee {
+			years_of_service: 2,
+			name: "Christy",
+		},
+		Employee {
+			years_of_service: 2,
+			name: "Marcus",
+		},
+		Employee {
+			years_of_service: 5,
+			name: "Jovanna",
+		},
+	]
+```
+
+#TODO: highlight the pros and cons of using the default sort. ie, adding a new field will change all the results...
