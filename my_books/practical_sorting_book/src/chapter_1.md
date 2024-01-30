@@ -158,7 +158,7 @@ A Tuple is a finte heterogeneous sequence. Finite sequence meaning that there ar
 For example, if I wanted to collect a person's first name and age, I could represent that in a tuple where the first element of the tuple is a &str and the second element of the tuple is a u32.
 
 ```rust
-	let person: (&'str, u32) = ("Marcus", 36);
+	let person: (&str, u32) = ("Marcus", 36);
 	
 	println!("{:?}", person);
 ```
@@ -263,14 +263,14 @@ impl fmt::Debug for Employee {
 }
 
 fn main(){
-	let marcus = Employee(name: "Marcus".to_string(), years_of_service: 2);
+	let marcus = Employee{name: "Marcus".to_string(), years_of_service: 2};
 	println!("{:?}", marcus);
 }
 ```
 
 Implementing the Debug trait once is okay, but I would hate to have to do this for every Struct I create. Luckily, Rust provides us a way to automatically generate commonly used traits. We do this with the derive attribute, which allows us to pass in a list of Traits we would like to generate a default implementation for (Note: the [Rust Book](https://doc.rust-lang.org/book/appendix-03-derivable-traits.html) lists the traits that we can use Dervie with).
 
-```
+```rust
 #[derive(Debug)]
 struct Employee {
     name: String,
@@ -278,10 +278,10 @@ struct Employee {
 }
 
 fn main(){
-	let marcus = Employee(name: "Marcus".to_string(), years_of_service: 2);
+	let marcus = Employee{name: "Marcus".to_string(), years_of_service: 2};
 	println!("{:?}", marcus);
 	
-	// TODO: Add output
+	//output: Employee { name: "Marcus", years_of_service: 2 }
 }
 ```
 
@@ -313,31 +313,31 @@ fn main() {
 	println!("{:#?}", list_of_employees);
 	
 	//output: [
-		Employee {
-			name: "Carmen",
-			years_of_service: 2,
-		},
-		Employee {
-			name: "Christy",
-			years_of_service: 2,
-		},
-		Employee {
-			name: "Dillon",
-			years_of_service: 0,
-		},
-		Employee {
-			name: "Jerry",
-			years_of_service: 1,
-		},
-		Employee {
-			name: "Jovanna",
-			years_of_service: 5,
-		},
-		Employee {
-			name: "Marcus",
-			years_of_service: 2,
-		},
-	]
+	//	Employee {
+	//		name: "Carmen",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Christy",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Dillon",
+	//		years_of_service: 0,
+	//	},
+	//	Employee {
+	//		name: "Jerry",
+	//		years_of_service: 1,
+	//	},
+	//	Employee {
+	//		name: "Jovanna",
+	//		years_of_service: 5,
+	//	},
+	//	Employee {
+	//		name: "Marcus",
+	//		years_of_service: 2,
+	//	},
+	//]
 }
 ```
 
@@ -379,31 +379,167 @@ fn main() {
 }
 
 	//output: [
-		Employee {
-			years_of_service: 0,
-			name: "Dillon",
-		},
-		Employee {
-			years_of_service: 1,
-			name: "Jerry",
-		},
-		Employee {
-			years_of_service: 2,
-			name: "Carmen",
-		},
-		Employee {
-			years_of_service: 2,
-			name: "Christy",
-		},
-		Employee {
-			years_of_service: 2,
-			name: "Marcus",
-		},
-		Employee {
-			years_of_service: 5,
-			name: "Jovanna",
-		},
-	]
+	//	Employee {
+	//		years_of_service: 0,
+	//		name: "Dillon",
+	//	},
+	//	Employee {
+	//		years_of_service: 1,
+	//		name: "Jerry",
+	//	},
+	//	Employee {
+	//		years_of_service: 2,
+	//		name: "Carmen",
+	//	},
+	//	Employee {
+	//		years_of_service: 2,
+	//		name: "Christy",
+	//	},
+	//	Employee {
+	//		years_of_service: 2,
+	//		name: "Marcus",
+	//	},
+	//	Employee {
+	//		years_of_service: 5,
+	//		name: "Jovanna",
+	//	},
+	//]
 ```
 
 #TODO: highlight the pros and cons of using the default sort. ie, adding a new field will change all the results...
+
+The benifits to using derive to autogenerate trait implementations is that its fast. With one line of code you will be able to compare different instances of your struct and sort a collection of them. 
+
+The downside to this approach is that it's brittle. If you change the ordering of your fields or add a new field to your struct, you will change the way your struct instances are compared and you may alter the sorted order of your struct instance in unintended ways.
+
+Lets walk through implementing the Ord trait for Employee so that we can get a better understanding of the pros and cons of implementing this code ourselves.
+
+To make this process easier to understand, we will implement one trait at a time and, once the implementation is finished, we will remove that trait from the derived list.
+
+If you recall, The Ord Trait is a super requires the Eq Trait and the PartialOrd trait to be implement for our struct. The Eq Trait is also a super trait that requires the PartialEq trait to be implemented. We will start our implementation from the PartialEq trait.
+
+The PartialEq trait has one required method and that is the `eq` method where we compare one instance of our struct to another instance of our struct and return a boolean to denote whether or not they are eqaul.
+
+```rust
+#[derive(Debug, Eq, PartialOrd, Ord)]
+struct Employee {
+    name: String,
+    years_of_service: u32,
+}
+
+impl PartialEq for Employee {
+    fn eq(&self, other: &Self) -> bool {
+	self.name == other.name && self.years_of_service == other.years_of_service
+    }
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);
+	
+	//output: [
+	//	Employee {
+	//		name: "Carmen",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Christy",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Dillon",
+	//		years_of_service: 0,
+	//	},
+	//	Employee {
+	//		name: "Jerry",
+	//		years_of_service: 1,
+	//	},
+	//	Employee {
+	//		name: "Jovanna",
+	//		years_of_service: 5,
+	//	},
+	//	Employee {
+	//		name: "Marcus",
+	//		years_of_service: 2,
+	//	},
+	//]
+}
+```
+
+When implementing the PartialEq Trait, we compared the `name` and the `years_of_service` properties to see if they matched. Once implemented, we removed the PartialEq Trait from the derived Traits list.
+
+The next trait we will implement is the Eq Trait. The Eq trait has no required methods. This means that as along a you implement PartialEq, you can get Eq for free by writing an implementation for an empty block of code.
+
+```rust
+#[derive(Debug, PartialOrd, Ord)]
+struct Employee {
+    name: String,
+    years_of_service: u32,
+}
+
+impl Eq for Employee {}
+
+impl PartialEq for Employee {
+    fn eq(&self, other: &Self) -> bool {
+	self.name == other.name && self.years_of_service == other.years_of_service
+    }
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);
+
+	//output: [
+	//	Employee {
+	//		name: "Carmen",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Christy",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Dillon",
+	//		years_of_service: 0,
+	//	},
+	//	Employee {
+	//		name: "Jerry",
+	//		years_of_service: 1,
+	//	},
+	//	Employee {
+	//		name: "Jovanna",
+	//		years_of_service: 5,
+	//	},
+	//	Employee {
+	//		name: "Marcus",
+	//		years_of_service: 2,
+	//	},
+	//]
+}
+```
