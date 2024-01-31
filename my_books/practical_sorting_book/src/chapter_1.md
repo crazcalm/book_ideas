@@ -416,7 +416,7 @@ Lets walk through implementing the Ord trait for Employee so that we can get a b
 
 To make this process easier to understand, we will implement one trait at a time and, once the implementation is finished, we will remove that trait from the derived list.
 
-If you recall, The Ord Trait is a super requires the Eq Trait and the PartialOrd trait to be implement for our struct. The Eq Trait is also a super trait that requires the PartialEq trait to be implemented. We will start our implementation from the PartialEq trait.
+If you recall, The Ord Trait is a super requires the Eq Trait and the PartialOrd (Note: also a super trait the requires PartialEq...) trait to be implement for our struct. The Eq Trait is also a super trait that requires the PartialEq trait to be implemented. We will start our implementation from the PartialEq trait.
 
 The PartialEq trait has one required method and that is the `eq` method where we compare one instance of our struct to another instance of our struct and return a boolean to denote whether or not they are eqaul.
 
@@ -543,3 +543,308 @@ fn main() {
 	//]
 }
 ```
+
+The next Trait we should implement is PartialOrd. This trait has one required method called `partial_cmp` that compares two instances of the type and returns an `Option<Ordering>`. Note that this method is very similar to the `cmp` method that comes from the Ord trait. The difference between the two methods is that `partial_cmp` returns `Option<Ordering>` while `cmp` returns `Ordering`.
+
+In Rust, `Option` is an enum with two variants; `Some` and `None`. You can think of these Variants as the existence of an answer. `Some<T>` means that some answer of type T exists and `None` means that no answer exists.
+
+```rust
+use std::cmp::Ordering;
+
+#[derive(Debug, Ord)]
+struct Employee {
+    name: String,
+    years_of_service: u32,
+}
+
+impl PartialOrd for Employee {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+	Some(self.name.cmp(&other.name).then(self.years_of_service.cmp(&other.years_of_service)))
+    }
+}
+
+impl Eq for Employee {}
+
+impl PartialEq for Employee {
+    fn eq(&self, other: &Self) -> bool {
+	self.name == other.name && self.years_of_service == other.years_of_service
+    }
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);
+
+	//output: [
+	//	Employee {
+	//		name: "Carmen",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Christy",
+	//		years_of_service: 2,
+	//	},
+	//	Employee {
+	//		name: "Dillon",
+	//		years_of_service: 0,
+	//	},
+	//	Employee {
+	//		name: "Jerry",
+	//		years_of_service: 1,
+	//	},
+	//	Employee {
+	//		name: "Jovanna",
+	//		years_of_service: 5,
+	//	},
+	//	Employee {
+	//		name: "Marcus",
+	//		years_of_service: 2,
+	//	},
+	//]
+}
+```
+
+In our implementation of the PartialOrd Trait, we leveraged the fact that the fields of the struct already implement the Ord Trait and used their `cmp` methods to implement our `partial_cmp` method. Taking advantage of the Ordering Enum methods, we compared the `name` field and then the `years_of_service` field.
+
+Our end goal for implementing these traits was to reach a start where changing the order of the fields in our struct does not change the sorted order of our results. Thought we have not finished implementing all of the traits (Ord trait still needs to be implemented), we have seemingly already reached that goal. When you change the order of the fields of the Employee struct, you will notices that the sorted order remains the same.
+
+```rust
+use std::cmp::Ordering;
+
+#[derive(Debug, Ord)]
+struct Employee {
+    years_of_service: u32,
+    name: String,
+}
+
+impl PartialOrd for Employee {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+	Some(self.name.cmp(&other.name).then(self.years_of_service.cmp(&other.years_of_service)))
+    }
+}
+
+impl Eq for Employee {}
+
+impl PartialEq for Employee {
+    fn eq(&self, other: &Self) -> bool {
+	self.name == other.name && self.years_of_service == other.years_of_service
+    }
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);
+}
+
+//output: [
+//	Employee {
+//        years_of_service: 2,
+//        name: "Carmen",
+//    },
+//    Employee {
+//        years_of_service: 2,
+//        name: "Christy",
+//    },
+//    Employee {
+//        years_of_service: 0,
+//        name: "Dillon",
+//    },
+//    Employee {
+//        years_of_service: 1,
+//        name: "Jerry",
+//    },
+//    Employee {
+//        years_of_service: 5,
+//        name: "Jovanna",
+//    },
+//    Employee {
+//        years_of_service: 2,
+//        name: "Marcus",
+//    },
+//]
+```
+
+Though we have reached our goal without implementing the Ord Trait, I still feel a sense of uneasiness. At this point, it is probably safe to assume that the autogenerated Ord Trait code relies on the PartialOrd Trait implementation of `partial_cmp` to implement `cmp`. However, why assume this to be true, when we can ensure that it is true by implementing the Ord Trait?
+
+```rust
+use std::cmp::Ordering;
+
+#[derive(Debug)]
+struct Employee {
+    years_of_service: u32,
+    name: String,
+}
+
+impl Ord for Employee {
+    fn cmp(&self, other: &Self) -> Ordering {
+	self.partial_cmp(&other).unwrap()
+    }
+}
+
+impl PartialOrd for Employee {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+	Some(self.name.cmp(&other.name).then(self.years_of_service.cmp(&other.years_of_service)))
+    }
+}
+
+impl Eq for Employee {}
+
+impl PartialEq for Employee {
+    fn eq(&self, other: &Self) -> bool {
+	self.name == other.name && self.years_of_service == other.years_of_service
+    }
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);
+
+
+//output: [
+//	Employee {
+//        years_of_service: 2,
+//        name: "Carmen",
+//    },
+//    Employee {
+//        years_of_service: 2,
+//        name: "Christy",
+//    },
+//    Employee {
+//        years_of_service: 0,
+//        name: "Dillon",
+//    },
+//    Employee {
+//        years_of_service: 1,
+//        name: "Jerry",
+//    },
+//    Employee {
+//        years_of_service: 5,
+//        name: "Jovanna",
+//    },
+//    Employee {
+//        years_of_service: 2,
+//        name: "Marcus",
+//    },
+//]
+}
+```
+
+Congratulations! We have implemented the Ord Trait for our Employee struct.
+
+Before we move on, there is something I have to mention about super traits. Given the relationships of the dependencies, it is easy to mistakingly assume that the methods of the sub Traits must be used to implement the super traits. This directional ordering, does next exist. For example, even though the Ord Trait is a super trait that requires the PartialOrd trait, we can use the Order trait to implement PartialOrd.
+
+```rust
+use std::cmp::Ordering;
+
+#[derive(Debug)]
+struct Employee {
+    years_of_service: u32,
+    name: String,
+}
+
+impl Ord for Employee {
+    fn cmp(&self, other: &Self) -> Ordering {
+	self.name.cmp(&other.name).then(self.years_of_service.cmp(&other.years_of_service))
+    }
+}
+
+impl PartialOrd for Employee {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+	Some(self.cmp(&other))
+    }
+}
+
+impl Eq for Employee {}
+
+impl PartialEq for Employee {
+    fn eq(&self, other: &Self) -> bool {
+	self.name == other.name && self.years_of_service == other.years_of_service
+    }
+}
+
+fn main() {
+    let list = vec![
+	("Marcus", 2),
+	("Jovanna", 5),
+	("Carmen", 2),
+	("Christy", 2),
+	("Dillon", 0),
+	("Jerry", 1)
+    ];
+
+    let mut list_of_employees = list.iter()
+	.map(|tuple| Employee{name: tuple.0.to_string(), years_of_service: tuple.1})
+	.collect::<Vec<Employee>>();
+
+    list_of_employees.sort();
+    println!("{:#?}", list_of_employees);
+
+//output: [
+//	Employee {
+//        years_of_service: 2,
+//        name: "Carmen",
+//    },
+//    Employee {
+//        years_of_service: 2,
+//        name: "Christy",
+//    },
+//    Employee {
+//        years_of_service: 0,
+//        name: "Dillon",
+//    },
+//    Employee {
+//        years_of_service: 1,
+//        name: "Jerry",
+//    },
+//    Employee {
+//        years_of_service: 5,
+//        name: "Jovanna",
+//    },
+//    Employee {
+//        years_of_service: 2,
+//        name: "Marcus",
+//    },
+//]
+}
+```
+
+# TODO: Figure out how to close the section
