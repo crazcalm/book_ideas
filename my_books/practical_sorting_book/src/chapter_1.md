@@ -145,6 +145,7 @@ Unstable sort means that these equal items can appear in any order. Stable sort 
 
 The benefit of using unstable sorting is that it is generally faster than stable sorting. The benefit of using stable sorting is that the same imput will always give your the same output. Up until now, we have only looked at stable sorts (`sort`, `sort_by`, `sort_by_key` and `sort_by_cached_key`), but most of the sorting methods we looked at have an unstable counterpart (`sort_unstable`, `sort_unstable_by`, `sort_unstable_by_key`).
 
+
 TODO: Add exercises to compare objects and sort them
 
 # Chatper X + 1
@@ -848,3 +849,24 @@ fn main() {
 ```
 
 # TODO: Figure out how to close the section
+
+# Chapter X + ?: Sorting Poker hands
+
+Up until this point, we have been taking a list of items and sorting them by one logical arrangement at a time. Admittedly, this covers most practical cases of sorting, but how do we handle situations where there are multiple logical arrangments that we can use to sort?
+
+Take poker for example. Poker is a game where we want to sort our hand based on the type of poker hand we have. The main reason we do this is because, when we compare hands, we compare the type of poker hand we have and, if the type of hand is the same, we compare the cards in the hand to see which hand is of greater value. This value is denoted by the denoted by the rules of the game.
+
+(Add list of poker hands)
+
+For example, If we are looking at a Tne Pair hand, we can break the hand down into two groups; Two Pairs and The Rest of the Cards. When sorting, we would arrange the cards so that each pair is grouped together, we would make sure that the highest pair is in the front, and we would order the rest of the cards in descending order by card number.
+
+(show an example of sorting a Two Pair hand)
+
+
+If we had a High Card poker hand, then we would want to sort your hand solely by card number in descreasing order placing our High Card in the front.
+
+(Show an example of sorting High card)
+
+Once we sort the poker hands so that the highest value cards are in the front, we can then sort poker hands of the same type by comparing the cards in the hands from front to back.
+
+## TODO: Make different sections to cover the steps of writing code to sort a list of poker hands.
