@@ -146,6 +146,40 @@ Unstable sort means that these equal items can appear in any order. Stable sort 
 The benefit of using unstable sorting is that it is generally faster than stable sorting. The benefit of using stable sorting is that the same imput will always give your the same output. Up until now, we have only looked at stable sorts (`sort`, `sort_by`, `sort_by_key` and `sort_by_cached_key`), but most of the sorting methods we looked at have an unstable counterpart (`sort_unstable`, `sort_unstable_by`, `sort_unstable_by_key`).
 
 
+## Common uses for sorting
+One common use case for using a sorting is comparing two list. When checking to see if two Vectors are equal, the ordering of the elements is important. For example, [1,2,3] is not equal to [2,3,1] even though they contain the same elements.
+
+```rust
+let a = vec![1,2,3,4];
+let b = vec![2,3,1,4];
+
+println("{:?} == {:?} => {}", a, b, a == b);
+```
+
+However, if we sorted both lists prior to checking for equality, the equality check will say that they are equal.
+
+```rust
+
+let mut a = vec![1,2,3,4];
+let mut b = vec![2,3,1,4];
+
+a.sort()
+b.sort()
+
+println("{:?} == {:?} => {}", a, b, a == b);
+```
+
+Another common use case for sorting is to make searching for an element easier.
+For example, if you have a list of numbers and you want to find the smallest element, you can sort the list in ascending order the look at the first element of the list. If you want the largest element of the list then sorting in ascending order will place that element at the end of the list. If you want the last element in the beginning of the list, you can sort the list in descending order and place the largest element at the beginning of the list.
+
+Ultimately, all we are doing is using the knowledge of the sort to help us find the element that we want. For example, binary search is a searching technique where we look for element X in a list that is sorted in ascending order. The properties of a list sorted in ascending order are that for any element in the list, any element on the left of it will be equal to or less than it and any element on the right is going to be equal to or greater than it. Knowing this, binary search says, let me start my search at the middle of the llist. If the element i am looking for is less than the element in the middle of the list, then I know that, if my element is in this list, it can only be in the left of of this list. This means that we do not have to search the right half at all.
+
+It should be noted that the first half of the list is also a list sorted in acending order. As such, we can apply the same logic there.
+
+I used binary search here as an example because it is the cleariest example of a searching technique that is built upon a specific sorted order, but this applies to most searching techniques. This is because shortucts for searching for an element can only be discovered after you understand that your elements are sorted in a certain order. 
+
+
+TODO: Add exercises to find elements in a list
 TODO: Add exercises to compare objects and sort them
 
 # Chatper X + 1
