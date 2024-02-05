@@ -903,4 +903,95 @@ If we had a High Card poker hand, then we would want to sort your hand solely by
 
 Once we sort the poker hands so that the highest value cards are in the front, we can then sort poker hands of the same type by comparing the cards in the hands from front to back.
 
-## TODO: Make different sections to cover the steps of writing code to sort a list of poker hands.
+(Show an example of comparing two poker hands of the same type)
+
+
+Once we are able to compare hands of the same type, we can then sort a list of poker hands with the first sort being the poker hand type and, if two hands are of the same type, then by the hands themselves.
+
+
+## Poker hands examples
+
+Before we make bring our Poker example to life, we need to have cards. A card can be thought of as a struct with a name and a suite. The name will e numbers ranging from 1 to 13 where jack through ace are 10 - 13. The suites can be represented as enums.
+
+```rust
+enum Suite {
+    Heart,
+    Club,
+    Spade,
+    Diamond,
+}
+
+struct Card {
+    name: u8,
+    suite: Suite,
+}
+
+fn main(){}
+```
+
+To make the cards visually less confusing, we are going to implement the Debug trait for the Card so that 10 - 13 are shown as jack - ace. The steps to implement the default debug code can be found in the Rust Standard library documentation. In their example, they take a Point struct and manually implement the Debug trait.
+
+```rust
+use std::fmt;
+
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl fmt::Debug for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Point")
+         .field("x", &self.x)
+         .field("y", &self.y)
+         .finish()
+    }
+}
+
+let origin = Point { x: 0, y: 0 };
+
+assert_eq!(format!("The origin is: {origin:?}"), "The origin is: Point { x: 0, y: 0 }");
+```
+
+The Debug trait has one method called `fmt` that takes in a formatter and returns an Result. In `fmt`, we configure the formatter by passing it the information it needs to represent our object. The object being formatted is a struct, so we use `fmt.debug_struct`, which returns `fmt::DebugStruct` (a helper use to gather information about the struct). We then use the `.fields` methods to populate the field information for our struct. Lastely, we call `finish` to see if our configuation has any issues. It should also be noted that `finish` returns the Result, which is expected by the `fmt` function signature.
+
+When taking this example and modifying it to our needs, we know that, outside of the names and types used, the only difference between what we want and they have is that we want on one of our fields to be represented by a string we derive from its value. For example, if `card.name` is 10, then we want the debug output value to be "J" and not 10. We can accomplish this with a match statement.
+
+```rust
+enum Suite {
+    Heart,
+    Club,
+    Spade,
+    Diamond,
+}
+
+struct Card {
+    name: u8,
+    suite: Suite,
+}
+
+impl fmt::Debug for Card {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+	let name = match self.name {
+	    x @ 1 ..=9 => x.to_string(),
+	    10 => "J".to_string(),
+	    11 => "Q".to_string(),
+	    12 => "K".to_string(),
+	    13 => "A".to_string(),
+	    _ => panic!("number {:?} is not a valid card number", &self.name),
+	};
+
+	f.debug_struct("Card")
+	    .field("name", &name)
+	    .field("suite", &self.suite)
+	    .finish()
+    }
+}
+
+fn main(){}
+``` 
+
+In a our match statement, we used 2 special features; the `@` for binding and the `_` to match all other possibilities. So `x @ 1 ..= 9` means that this arm is true if the value we are matching against is in the range of `1..=9`. If so, we will bind the matched value to `x` and then give you access to `x` in your expression code block.
+
+The `_` feature allows us to catch all the values that are not matched by the arms above it. This is needed because `match` expressions are exhaustive in the sense that your arms much cover every possible value for the type that you are trying to match against. For our type of `u8`, all values that are not 1-13 will match against this arm. Because these are not valid values for our cards, I decided to raise an error (panic) if this arm is ever matched.
+
