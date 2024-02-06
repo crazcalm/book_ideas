@@ -995,3 +995,17 @@ In a our match statement, we used 2 special features; the `@` for binding and th
 
 The `_` feature allows us to catch all the values that are not matched by the arms above it. This is needed because `match` expressions are exhaustive in the sense that your arms much cover every possible value for the type that you are trying to match against. For our type of `u8`, all values that are not 1-13 will match against this arm. Because these are not valid values for our cards, I decided to raise an error (panic) if this arm is ever matched.
 
+Given that panics are errors and we know that the earlier you find an error, the easier it is to fix it. We should created a functions to create our Cards and yell at us when try to create an invalid card.
+
+```rust,ignore
+impl Card {
+    fn new(name: u8, suite: Suite) -> Result<Self, &'static str> {
+	match name {
+	    x @ 1..=13 => Ok(Card{name, suite}),
+	    _ => Err("name must be in the range of 1 - 13"),
+	}
+    }
+}
+```
+With this associated function called `new`, we can ensure that only valid Cards are created. We do this by returning a Result, which is an enum with two variants; Ok and Err. If we can create a valid card, we return that Card wrapped in an Result::Ok. If we cannot create a valid card, we return an error messaged wrapped in an Result::Err.
+
