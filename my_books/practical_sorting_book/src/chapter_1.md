@@ -1009,3 +1009,198 @@ impl Card {
 ```
 With this associated function called `new`, we can ensure that only valid Cards are created. We do this by returning a Result, which is an enum with two variants; Ok and Err. If we can create a valid card, we return that Card wrapped in an Result::Ok. If we cannot create a valid card, we return an error messaged wrapped in an Result::Err.
 
+Now that we have a way to create our cards, we should create a deck of crads and print them out to make sure everything works as expected.
+
+```rust
+use std::fmt;
+
+#[derive(Debug, Clone)]
+enum Suite {
+    Heart,
+    Club,
+    Spade,
+    Diamond,
+}
+
+
+struct Card {
+    name: u8,
+    suite: Suite,
+}
+
+impl fmt::Debug for Card {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+	let name = match self.name {
+	    x @ 1 ..=9 => x.to_string(),
+	    10 => "J".to_string(),
+	    11 => "Q".to_string(),
+	    12 => "K".to_string(),
+	    13 => "A".to_string(),
+	    _ => panic!("number {:?} is not a valid card number", &self.name),
+	};
+
+	f.debug_struct("Card")
+	    .field("name", &name)
+	    .field("suite", &self.suite)
+	    .finish()
+    }
+}
+
+impl Card {
+    fn new(name: u8, suite: Suite) -> Result<Self, &'static str> {
+	match name {
+	    x @ 1..=13 => Ok(Card{name, suite}),
+	    _ => Err("name must be in the range of 1 - 13"),
+	}
+    }
+}
+
+fn main(){
+    let mut cards = Vec::new();
+    let suites = vec![Suite::Heart, Suite::Spade, Suite::Diamond, Suite::Club];
+
+    for suite in suites {
+        for num in 1..=13 {
+            cards.push(Card {
+                name: num,
+                suite: suite.clone(),
+            });
+        }
+    }
+
+    println!("{:?}", cards);
+
+}
+```
+
+When printing our cards, we have to remember that we implemented Debug for Card, but we did not do it for Suite. So, in order to print the suite of the Card, we used derive to create a Debug implementation for Suite. Another trait we dereived for Suite was clone. This was done more our of convenience than need. I say that because each card needs to own its one instance of Suite. We could of manually created a new Suite instance for each card, but it is much easier to create one instance of each Suite variant we need and then use clone to create new instances of that Suite variant as needed.
+
+It is time to sort our cards. Poker is a game where the suite of the card matters for a poker hand (a collection of five cards), but not for the individual cards. Knowing this, we will implement the Ord and Eq trait solely based on the Card name.
+
+```rust
+use std::fmt;
+
+#[derive(Debug, Clone)]
+enum Suite {
+    Heart,
+    Club,
+    Spade,
+    Diamond,
+}
+
+
+struct Card {
+    name: u8,
+    suite: Suite,
+}
+
+impl fmt::Debug for Card {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+	let name = match self.name {
+	    x @ 1 ..=9 => x.to_string(),
+	    10 => "J".to_string(),
+	    11 => "Q".to_string(),
+	    12 => "K".to_string(),
+	    13 => "A".to_string(),
+	    _ => panic!("number {:?} is not a valid card number", &self.name),
+	};
+
+	f.debug_struct("Card")
+	    .field("name", &name)
+	    .field("suite", &self.suite)
+	    .finish()
+    }
+}
+
+impl Card {
+    fn new(name: u8, suite: Suite) -> Result<Self, &'static str> {
+	match name {
+	    x @ 1..=13 => Ok(Card{name, suite}),
+	    _ => Err("name must be in the range of 1 - 13"),
+	}
+    }
+}
+
+impl PartialEq for Card {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Eq for Card {}
+
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(&other))
+    }
+}
+
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.name.cmp(&other.name).reverse()
+    }
+}
+
+fn main(){
+    let mut cards = Vec::new();
+    let suites = vec![Suite::Heart, Suite::Spade, Suite::Diamond, Suite::Club];
+
+    for suite in suites {
+        for num in 1..=13 {
+            cards.push(Card {
+                name: num,
+                suite: suite.clone(),
+            });
+        }
+    }
+	
+	cards.sort();
+    println!("{:?}", cards);
+
+}
+```
+
+Next, we need to address the poker hand and state with they mean with reference to sorting. These are the various poker hands (add graphic) and I would like to group them by the sorting method we can use to order them.
+
+# Sort by Card name
+Technically speaking, High card and straight are the only poker hand in this category because it is the only hand is judge based solely on the card name. That said, sorting by card name is the seconary short for most poker hands. For example, if you are comparing One pair poker hands and both hands have a pair of aces, you will have to look at the rest of the cards in both hands to determine the winner. We do this by sorting the rest of the cards by card name and comparing the hands from left to right one card at a time and whoever has the highest next card wins.
+
+
+## Sort by Card name and Suite
+Royal flush, Straight flush, and flush can all be sorted by card name while giving priority to a single suite. If you only have 5 cards in your hand, then the suite doesn't matter and you can use "Sort by Card name" and ignore the suite. However, if you are in a situation where you have to pick the best 5 cards out of a hand and you know you have a flush have type, then you must remember to prioritize the suite of the flush in your sort.
+
+## Short by Card name with priority to a single card name
+Two pair, three pair, and four of a kind fall into this category because we are selecting a single number to put in front of our list (giving them priority) and then sorting the rest of the cards by card name (ex. 33AKQ)
+
+## Sort by Card name while prioritizing 2 card names
+This sort is specifically for the poker hand full house where you have three of a kind and two of a kind in the same hand. In terms of comparing two hands, you first check against the three of a kind, and if that is the same, you check against the two of a kind. In theory, sorting by card name should matter here because poker hands are based on your best five cards and none of these 5 cards are sorted by card name, but, in practice, you should still have a consistent way of organizing the rest of the cards in the hand.
+
+# Sorting poker hands
+
+A couple things you may have notice when listing out the strategies of sorting poker hands, is that the sort depends on extra information. We need to know what type of hand we have in order to pick the correcting sort, and then, for most hand types, we need to know what card names and/or suites need to be prioritized in the sort.
+
+To hold this information along with the list of cards, we should create a struct called PokerHand. This struct should know the PokerHand type and have a list of cards that represent the "hand".
+
+```rust
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
+enum PokerHandType {
+    RoyalFlush,
+    StraightFlush,
+    FourOfAKind,
+    FullHouse,
+    Flush,
+    Straight,
+    ThreeOfAKind,
+    TwoPair,
+    Pair,
+    HighCard,
+}
+
+#[derive(Debug)]
+struct PokerHand {
+    cards: Vec<Card>,
+    poker_hand_type: Option<HandType>,
+}
+```
+
+For convience, I made the poker hand type an enum and I ordered variants of the enum from strongest hand type to weakest hand type. The reason I did that is because when we compare poker hands, we first compare the hand type. In order to make this comparision, PokerHandType must implement the following traits; Ord, Eq, PartialOrd, PartialEq. I do not want to write the implementation for all of these traits, when I know I can use the derived version of these traits and still get what I want.In order to make sure the derived implementation of these traits work as I expected it to, I need to make sure that the enum variants are in the order that I want them to be sorted in. (NOte: I may want to talke about how derive works for enums. Its the same as with structs, but yeah...) 
