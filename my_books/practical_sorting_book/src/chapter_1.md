@@ -955,7 +955,9 @@ assert_eq!(format!("The origin is: {origin:?}"), "The origin is: Point { x: 0, y
 
 The Debug trait has one method called `fmt` that takes in a formatter and returns an Result. In `fmt`, we configure the formatter by passing it the information it needs to represent our object. The object being formatted is a struct, so we use `fmt.debug_struct`, which returns `fmt::DebugStruct` (a helper use to gather information about the struct). We then use the `.fields` methods to populate the field information for our struct. Lastely, we call `finish` to see if our configuation has any issues. It should also be noted that `finish` returns the Result, which is expected by the `fmt` function signature.
 
-When taking this example and modifying it to our needs, we know that, outside of the names and types used, the only difference between what we want and they have is that we want on one of our fields to be represented by a string we derive from its value. For example, if `card.name` is 10, then we want the debug output value to be "J" and not 10. We can accomplish this with a match statement.
+When taking this example and modifying it to our needs, we know that, outside of the names and types used, the only difference between what we want and they have is that we want on one of our fields to be represented by a string we derive from its value. For example, if `card.name` is 11, then we want the debug output value to be "J" and not 11. We can accomplish this with a match statement.
+
+TODO: Make sure cards are 2-14, where 11-13 are the face cards and Ace is 14
 
 ```rust
 enum Suite {
@@ -973,11 +975,11 @@ struct Card {
 impl fmt::Debug for Card {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 	let name = match self.name {
-	    x @ 1 ..=9 => x.to_string(),
-	    10 => "J".to_string(),
-	    11 => "Q".to_string(),
-	    12 => "K".to_string(),
-	    13 => "A".to_string(),
+	    x @ 2 ..=10 => x.to_string(),
+	    11 => "J".to_string(),
+	    12 => "Q".to_string(),
+	    13 => "K".to_string(),
+	    14 => "A".to_string(),
 	    _ => panic!("number {:?} is not a valid card number", &self.name),
 	};
 
@@ -991,9 +993,9 @@ impl fmt::Debug for Card {
 fn main(){}
 ``` 
 
-In a our match statement, we used 2 special features; the `@` for binding and the `_` to match all other possibilities. So `x @ 1 ..= 9` means that this arm is true if the value we are matching against is in the range of `1..=9`. If so, we will bind the matched value to `x` and then give you access to `x` in your expression code block.
+In a our match statement, we used 2 special features; the `@` for binding and the `_` to match all other possibilities. So `x @ 2 ..= 10` means that this arm is true if the value we are matching against is in the range of `2..=10`. If so, we will bind the matched value to `x` and then give you access to `x` in your expression code block.
 
-The `_` feature allows us to catch all the values that are not matched by the arms above it. This is needed because `match` expressions are exhaustive in the sense that your arms much cover every possible value for the type that you are trying to match against. For our type of `u8`, all values that are not 1-13 will match against this arm. Because these are not valid values for our cards, I decided to raise an error (panic) if this arm is ever matched.
+The `_` feature allows us to catch all the values that are not matched by the arms above it. This is needed because `match` expressions are exhaustive in the sense that your arms much cover every possible value for the type that you are trying to match against. For our type of `u8`, all values that are not 2-14 will match against this arm. Because these are not valid values for our cards, I decided to raise an error (panic) if this arm is ever matched.
 
 Given that panics are errors and we know that the earlier you find an error, the easier it is to fix it. We should created a functions to create our Cards and yell at us when try to create an invalid card.
 
@@ -1001,7 +1003,7 @@ Given that panics are errors and we know that the earlier you find an error, the
 impl Card {
     fn new(name: u8, suite: Suite) -> Result<Self, &'static str> {
 	match name {
-	    x @ 1..=13 => Ok(Card{name, suite}),
+	    x @ 2..=14 => Ok(Card{name, suite}),
 	    _ => Err("name must be in the range of 1 - 13"),
 	}
     }
@@ -1031,11 +1033,11 @@ struct Card {
 impl fmt::Debug for Card {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 	let name = match self.name {
-	    x @ 1 ..=9 => x.to_string(),
-	    10 => "J".to_string(),
-	    11 => "Q".to_string(),
-	    12 => "K".to_string(),
-	    13 => "A".to_string(),
+	    x @ 1 ..=10 => x.to_string(),
+	    11 => "J".to_string(),
+	    12 => "Q".to_string(),
+	    13 => "K".to_string(),
+	    14 => "A".to_string(),
 	    _ => panic!("number {:?} is not a valid card number", &self.name),
 	};
 
@@ -1049,7 +1051,7 @@ impl fmt::Debug for Card {
 impl Card {
     fn new(name: u8, suite: Suite) -> Result<Self, &'static str> {
 	match name {
-	    x @ 1..=13 => Ok(Card{name, suite}),
+	    x @ 2..=14 => Ok(Card{name, suite}),
 	    _ => Err("name must be in the range of 1 - 13"),
 	}
     }
@@ -1060,7 +1062,7 @@ fn main(){
     let suites = vec![Suite::Heart, Suite::Spade, Suite::Diamond, Suite::Club];
 
     for suite in suites {
-        for num in 1..=13 {
+        for num in 2..=14 {
             cards.push(Card {
                 name: num,
                 suite: suite.clone(),
@@ -1097,11 +1099,11 @@ struct Card {
 impl fmt::Debug for Card {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 	let name = match self.name {
-	    x @ 1 ..=9 => x.to_string(),
-	    10 => "J".to_string(),
-	    11 => "Q".to_string(),
-	    12 => "K".to_string(),
-	    13 => "A".to_string(),
+	    x @ 1 ..=10 => x.to_string(),
+	    11 => "J".to_string(),
+	    12 => "Q".to_string(),
+	    13 => "K".to_string(),
+	    14 => "A".to_string(),
 	    _ => panic!("number {:?} is not a valid card number", &self.name),
 	};
 
@@ -1146,7 +1148,7 @@ fn main(){
     let suites = vec![Suite::Heart, Suite::Spade, Suite::Diamond, Suite::Club];
 
     for suite in suites {
-        for num in 1..=13 {
+        for num in 2..=14 {
             cards.push(Card {
                 name: num,
                 suite: suite.clone(),
@@ -1203,4 +1205,4 @@ struct PokerHand {
 }
 ```
 
-For convience, I made the poker hand type an enum and I ordered variants of the enum from strongest hand type to weakest hand type. The reason I did that is because when we compare poker hands, we first compare the hand type. In order to make this comparision, PokerHandType must implement the following traits; Ord, Eq, PartialOrd, PartialEq. I do not want to write the implementation for all of these traits, when I know I can use the derived version of these traits and still get what I want.In order to make sure the derived implementation of these traits work as I expected it to, I need to make sure that the enum variants are in the order that I want them to be sorted in. (NOte: I may want to talke about how derive works for enums. Its the same as with structs, but yeah...) 
+For convience, I made the poker hand type an enum and I ordered variants of the enum from strongest hand type to weakest hand type. The reason I did that is because when we compare poker hands, we first compare the hand type. In order to make this comparision, PokerHandType must implement the following traits; Ord, Eq, PartialOrd, PartialEq. I do not want to write the implementation for all of these traits, when I know I can use the derived version of these traits and still get what I want.In order to make sure the derived implementation of these traits work as I expected it to, I need to make sure that the enum variants are in the order that I want them to be sorted in. (Note: I may want to talk about how derive works for enums. Its the same as with structs, but yeah...) 
