@@ -1206,3 +1206,50 @@ struct PokerHand {
 ```
 
 For convience, I made the poker hand type an enum and I ordered variants of the enum from strongest hand type to weakest hand type. The reason I did that is because when we compare poker hands, we first compare the hand type. In order to make this comparision, PokerHandType must implement the following traits; Ord, Eq, PartialOrd, PartialEq. I do not want to write the implementation for all of these traits, when I know I can use the derived version of these traits and still get what I want.In order to make sure the derived implementation of these traits work as I expected it to, I need to make sure that the enum variants are in the order that I want them to be sorted in. (Note: I may want to talk about how derive works for enums. Its the same as with structs, but yeah...) 
+
+## Poker hand 1 vs Poker hand 2
+
+When compaing poker hands, if the poker hand type is the same, we then have to compare the poker hands themselves to determine the winner. When comparing hands, there are three possible results; equal, less than or greater.
+
+We will start with the equal case, but, before we start, lets state what we know.
+
+1. If two poker hands do not have the same type, then they cannot be equal.
+2. If two poker hands have the same type, then they may be equal.
+3. If two poker hands have the same type, then we have to compare the cards in the hand to determine if they are equal.
+4. (assuming 5 cards hands) If two poker hands have the same type, and they have the same cards (comparing card names and not card suite), then the poker hands are equal.
+
+When laying out these statements, we see that, according to statement 4, the cards do not have to be sorted to determine equality. For example, [2 Spades, 2 hearts, 4 diamond, ace clubs, king spades] is equal to [ace spades, king hearts, 4 spades, 2 clubs, 2 diamonds] because, when you count how many times each card name is represented, you get the same value (2:2, 4:1, 14 (ace):1, 13:1). Knowing this means that we can use a hashmap to count our cards and then use a hashmap to see of the list of cards are equal.
+
+```rust,noplaygound
+impl PartialEq for PokerHand {
+    fn eq(&self, other: &Self) -> bool {
+	match self.poker_hand_type == other.poker_hand_type {
+	    true => {
+		if self.cards.len() != other.cards.len() {
+		    false
+		} else {
+		    let mut counter_1 = HashMap::new();
+		    for card in &self.cards {
+			counter_1.entry(card.name).and_modify(|count| *count +=1).or_insert(1);
+		    }
+
+		    let mut counter_2 = HashMap::new();
+		    for card in &other.cards {
+			counter_2.entry(card.name).and_modify(|count| *count += 1).or_insert(1);
+		    }
+
+		    counter_1 == counter_2
+		}
+	    }
+	    false => false,
+	}
+    }
+}
+
+impl Eq for PokerHand {}
+```
+
+Now that we know how to check to check if two poker hands are equal. We now need to figure out how to determine when one hand is greater than the other.
+
+Though we view the winning hand as the "greater" hand, in sorting, we tend to sort in ascending order. Then means that in order to get the "greater" hand in the first slot (Think of sorting a list of hands), we will say that the "greater" hand is less than the other hand to make sure that the "greater" hand gets prioritized and placed in the first slot.
+
