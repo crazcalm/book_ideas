@@ -1310,5 +1310,49 @@ As mentioned, we can rely on the default sorting order of the cards to provide u
 
 The next two sorting algorithms will require helper methods. This is because our poker hand type tells us that we need to prioritize a card or 2, but the poker hand type does not tell us which cards to prioritize. So, we will create helper methods to obtain this information.
 
-TODO -> pair, three of a kind and four of a kind.
+Next, we will tackle the sorting algorithm for the  poker hand types of Pair, Three of a kind and Four of a kind. The commonality between the poker hand types is that they all prioritize one card name in front and they rest of the cards are sorted in card name order from highest to lowest.
 
+Using the poker hand type to our advantage, we know that Pair, Three of a kind and Four of a kind will only ever have one card name that repeats in their hand. With this in mind, we can write a helper method find the first repeat card in the list and returns that card name value.
+
+```rust,noplayground
+    fn find_first_repeat_card_name(&self) -> Option<u8> {
+        let mut seen = HashSet::new();
+
+        for card in &self.cards {
+            if !seen.contains(&card.name) {
+                seen.insert(card.name);
+            } else {
+                return Some(card.name);
+            }
+        }
+        None
+    }
+
+```
+
+Our `find_first_repeat_card_name` method has a immutable reference to self and returns `Option<u8>` (note: u8 is the data type of card name). The reason why we return an Option as appose to directly returning a `u8` is that this method can technically be called at any point in time for any poker hand type and not all poker hand types have repeat cards (Example: Striaght and HighCard). If this method is called when there are not repeat cards, then it should return None.
+
+With regard to finding the first repeat card.name in then list of cards, we can accomplish this with a hashmap and a single iteration over the list. While iterating over the list, we will put every card name we see in the hashmap. If we come across a card name that we have already seen, then that card name is our first repeat card name. In our helper function, you see that once we found the card repeat card name, we return it immediately.
+
+Now that we have our helper method, we can move on to implementing the sorting algorithm.
+
+```rust,noplayground
+PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind => {
+	let priority_card_name = self
+        .find_first_repeat_card_name()
+        .expect("Unable to find repeat card name");
+    
+	self.cards.sort_by(|a, b| {
+		if a.name == priority_card_name && b.name == priority_card_name {Ordering::Equal}
+		else if a.name == priority_card_name && b.name != priority_card_name {Ordering::Less}
+		else if a.name != priority_card_name && b.name == priority_card_name {Ordering::Greater}
+		else {a.cmp(&b)}
+});
+
+Ok(())
+}
+```
+
+TODO -> figure out how closures work with pulling in varibles from the outer scope.
+
+In this match arm, we use our helper method to set the `priority_card_name` variable which holds the value of the card name that needs to be prioritized. We then call `sort_by` on the vec of cards and pass in our closure function. The functions list of the cases of `a` or `b` have the same card name as the priority card and then prioritizes the card accordingly. If neither `a` or `b` are have the priorit number, then we fallback to the sort implementation on the cards themselves by call `a.cmp(&b)`, which gives us the "card name order from highest to lowest".
