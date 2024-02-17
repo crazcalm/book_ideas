@@ -1253,3 +1253,62 @@ Now that we know how to check to check if two poker hands are equal. We now need
 
 Though we view the winning hand as the "greater" hand, in sorting, we tend to sort in ascending order. Then means that in order to get the "greater" hand in the first slot (Think of sorting a list of hands), we will say that the "greater" hand is less than the other hand to make sure that the "greater" hand gets prioritized and placed in the first slot.
 
+That knowledge combined with the fact that we have to pick the type of sorting we do based on the type of poker hand we have means that we have to write a custom method to do our sorting for us. Lets write the outline of that method.
+
+
+```rust,noplayground
+impl PokerHand {
+    // Assuming a 5 card hand
+    fn sort_hand(&mut self) -> Result<(), String>{
+		if let Some(poker_hand_type) = &self.poker_hand_type {
+			match poker_hand_type {
+				PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind => {
+					todo()!
+				},
+				PokerHandType::RoyalFlush | PokerHandType::StraightFlush | PokerHandType::Flush | PokerHandType::Straight | PokerHandType::HighCard => {
+					todo()!
+				},
+				PokerHandType::FullHouse | PokerHandType::TwoPair => {
+					todo()!
+				},
+			}
+		} else {
+			Err("Cannot sort because no poker hand type is specified".to_string())
+		}
+    }
+}
+```
+
+This is our `sort_hand` method. our method returns a Result of an empty value and an Error. The reason we return a result is because that poker hand type field is optional. If we do not know what poker hand type we have, then we do not have enough information to sort our hand. When this happends, we should raise an error. 
+
+We use `if let Some()` to get a reference to the poker hand type. Once obtained, we match against it to figure out what kind of sort algorithm we need to run to properly order the cards. For simplicity, we will assume that we have a 5 card hand.
+
+The match arms of our match statment are used to group the different poker hand type into common algorithms. For example, FullHouse and TwoPair are grouped togather because they both do a priority sort on two numbers (one number being of a higher priority than the other).
+
+
+We essentially have three different sorting algorthms that we need to implement; priority of two cards, priority of one card, and card name order from high to low, which is the secondary sort for the two other groups. Lucky for us, the "card name order from high to low" is the default sort for the Cards.
+
+Starting with the simpliest algorithm first, we will do the "card name order from high to low" sort.
+
+```rust,noplayground
+PokerHandType::RoyalFlush | PokerHandType::StraightFlush | PokerHandType::Flush | PokerHandType::Straight | PokerHandType::HighCard => {
+	self.cards.sort();
+
+	if *poker_hand_type == PokerHandType::StraightFlush || *poker_hand_type == PokerHandType::Straight {
+		// In the case where the straight is Ace, 5, 4 ,3, 2, we need to list
+		// the left by 1 -> 5, 4, 3, 2, Ace
+		if self.cards[0].name == 14 && self.cards[1].name == 5 {
+			self.cards.rotate_left(1);
+		}
+	}
+
+	Ok(())
+},
+```
+
+As mentioned, we can rely on the default sorting order of the cards to provide use with this sort, but there are edge cases. For example, Striaght and Staightflush can have the Ace at the beginning of the run (ace, king, queen, jack, 10) or at the end of the run (5, 4, 3, 2, Ace). When sorting the cards, the Ace will be placed as the highest card in the run, so instead of getting (5,4,3,2,ace), we will have (ace, 5,4,3,2). To correct this edge case, we have to note that every time we see this ordering, we need to rotate all the elements in the list to the left by 1 resulting in (5,4,3,2, ace). Vect's in Rust do have a rotate_left that we can leverage for this.
+
+The next two sorting algorithms will require helper methods. This is because our poker hand type tells us that we need to prioritize a card or 2, but the poker hand type does not tell us which cards to prioritize. So, we will create helper methods to obtain this information.
+
+TODO -> pair, three of a kind and four of a kind.
+
