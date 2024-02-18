@@ -1356,3 +1356,106 @@ Ok(())
 TODO -> figure out how closures work with pulling in varibles from the outer scope.
 
 In this match arm, we use our helper method to set the `priority_card_name` variable which holds the value of the card name that needs to be prioritized. We then call `sort_by` on the vec of cards and pass in our closure function. The functions list of the cases of `a` or `b` have the same card name as the priority card and then prioritizes the card accordingly. If neither `a` or `b` are have the priorit number, then we fallback to the sort implementation on the cards themselves by call `a.cmp(&b)`, which gives us the "card name order from highest to lowest".
+
+The last group of poker hands (TwoPair & FullHouse) fall under the "prioritize two card names" alrgorithm. The nuiance of this is that the order of the prioritizing matters. For example, [5,5,2,2,ace] is correct while [2,2,5,5,ace] is incorrect because the 5 pair is greater than the two pair.
+
+When thinking about the hand type Fullhouse, which is a two pair +  a Three of a kind, we know that [3,3,3,6,6] is correct and [6,6,3,3,3] is not correct because the Three of a kind should always get prioritized first.
+
+In both of these poker hand types, we need to know which cards to prioritize and which order to prioritize them in to properly sort them.
+
+To obtain this information, we will write a helper function called "find_two_repeat_card_names" that will return both of the card names that need to be prioritized in sorted order.
+
+```rust,noplayground
+    fn find_two_repeat_card_names(&self) -> Option<((u8, i32), (u8, i32))> {
+        let mut counter = HashMap::new();
+
+        for card in &self.cards {
+            counter
+                .entry(&card.name)
+                .and_modify(|count| *count += 1)
+                .or_insert(1);
+        }
+
+        let mut card_names: Vec<(u8, i32)> = counter
+            .iter()
+            .filter(|(key, count)| **count > 1)
+            .map(|(key, count)| (key.clone().clone(), count.clone()))
+            .collect();
+
+        card_names.sort_by(|a, b| a.1.cmp(&b.1).reverse().then(a.0.cmp(&b.0).reverse()));
+
+        if card_names.len() >= 2 {
+            Some((card_names[0], card_names[1]))
+        } else {
+            None
+        }
+    }
+```
+As with the last helper function, we return an option. This is because we need to keep in mind that it can be called at any point in time for any hand type and, as such, may not be able to find two repeated card names. In those cases, it should return None.
+
+The option enum is going to return a tuple with two elements where each element is `(u8, i32)`. The `u8` represents the card name and the `i32` represents the card count (Technically speaking, the count does not need to be returned, but it is nice to have it there so that the caller of the function can quickly verify that the returned card names are correct and are in the correct order).
+
+We start of the function by creating a HashMap. We do this because we want to use the HashMap to count the number of times a card name is represented in the list. To gain the count, we iterate over the list and, via the HashMap Entry API, we add items to the HashMap. If it is a new item being added, we set the count to 1. If the item already exists in the HashMap, we take the existing count and add +1 to it.
+
+Once we have the count for how many times each card name is represented in the list, we want to cerate a Vector that only contains the card names where the count is greater than 1. We do this by iterating over the HashMap and filtering the entries by our criteria. We use `map` to create the tuple structure we want. While we are at it, we also clone the values so that we have `u8` and `i32` and not pointer references to `u8` and `i32`. Lastly, we call `collect` to create the `Vec` collection we want.
+
+At this point, we have an unordered list of all the card names whose count is greater than 1. Given that the order of how we return these values matter, we must sort this list.
+
+We call sort by on the list. We make sure that the first comparison is on the count of the card name because the card name with the higher count should be prioritized before all others. We do this by `a.1.cmp(&b.1).reverse()`. Since we are comparing `i32`, we make sure to call `reverse` so that the larger number will be places in front of the smaller number.
+
+If the count number is the same, then we need to compare the card name (`u8`). Given that we are comparing numbers and we want the larger number to go in front, we do the same comparison as last time, but for index 0 (`a.0.cmp(&b.0).reverse()`).
+
+We now have an ordered list of all the card names whose count is greater than 1. The last thing we have to do is make sure there are at least 2 values in the list. If there are, we return the first two values. If not, we return None.
+
+Now that the helper function is complete, we can now use it in our `sort_hand` method to write out the last match arm.
+
+```rust,noplayground
+PokerHandType::FullHouse | PokerHandType::TwoPair => {
+                    let (card_name_1, card_name_2) = self
+                        .find_two_repeat_card_names()
+                        .expect("Unable to find two numbers that repeat");
+                    let priority_1 = card_name_1.0;
+                    let priority_2 = card_name_2.0;
+                    self.cards.sort_by(|a, b| {
+                        if a.name == priority_1 && b.name == priority_1 {
+                            a.cmp(&b)
+                        } else if a.name == priority_1 && b.name == priority_2 {
+                            Ordering::Less
+                        } else if a.name == priority_2 && b.name == priority_1 {
+                            Ordering::Greater
+                        } else if a.name == priority_2 && b.name == priority_2 {
+                            a.cmp(&b)
+                        } else if a.name == priority_1
+                            && b.name != priority_1
+                            && b.name != priority_2
+                        {
+                            Ordering::Less
+                        } else if a.name == priority_2
+                            && b.name != priority_1
+                            && b.name != priority_2
+                        {
+                            Ordering::Less
+                        } else if a.name != priority_1
+                            && a.name != priority_2
+                            && b.name == priority_1
+                        {
+                            Ordering::Greater
+                        } else if a.name != priority_1
+                            && a.name != priority_2
+                            && b.name == priority_2
+                        {
+                            Ordering::Greater
+                        } else {
+                            a.cmp(&b)
+                        }
+                    });
+
+                    Ok(())
+                }
+```
+The match arm code is long, but the steps are simple.
+
+Step 1: We use the helper function to find the two card names that need to be prioritized.
+Step 2: Call `sort_by` and pass it a closure that will order the card so that `priority_1` is placed in the front and `priority_2` is place right after `priority_1` and any extra cards are placed after `priority_2`.
+
+The `sort_by` closure function is long, but that is because we need to make sure we handle all the cases where `a` or `b` can have a card name of  `priority_1`, `priority_2` or some other card.
