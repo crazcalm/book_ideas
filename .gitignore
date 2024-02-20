@@ -1,4 +1,7 @@
 */target/
 
 # mdbook
-*book/
+my_books/practical_sorting_book/book/
+
+# emacs
+*~
