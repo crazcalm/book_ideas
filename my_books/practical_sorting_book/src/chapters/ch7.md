@@ -1,4 +1,5 @@
 # Working with Structs
+## Structs and Traits
 
 The great thing about structs is that everything we learned about numbers and tuples applies to structs.
 
@@ -61,4 +62,4 @@ fn main(){
 }
 ```
 
- 
+Using derive to generate the implementation of Debug creates the same code that we wrote in our previous example. This means that, for the cases where cases where you do not want to do anything custom in your debug representation, using derive to generate your implementation is a valid choice that will save you time. 
