@@ -42,3 +42,31 @@ fn main() {
 }
 ```
 
+In the above example, we derived all of the necessary traits needed for Sorting and then were able to sort of list of employee struct instances. Given that these are derived implementations of traits, we know that, when sorting, our comparisons are dictacted by the order of the fields. Since the Employee Struct defines the name field first, it is the first field compared during the sorting process. As a result, our sorted list is by name and then years of service.
+
+By swtiching the order of the Employee Structs fields, we can change the sort so that the list will be sorted by years of service and then name.
+
+```rust
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+struct Employee {
+    years_of_service: u32,
+	name: String,
+}
+
+fn main() {
+    let mut list_of_employees = vec![
+		Employee{name: "Marcus".to_string(), years_of_service: 2},
+		Employee{name: "Jovanna".to_string(), years_of_service: 5},
+		Employee{name: "Carmen".to_string(), years_of_service: 2},
+		Employee{name: "Christy".to_string(), years_of_service: 2},
+		Employee{name: "Dillon".to_string(), years_of_service: 0},
+		Employee{name: "Jerry".to_string(), years_of_service: 1},
+    ];
+
+    list_of_employees.sort();
+    
+	println!("{:#?}", list_of_employees);
+}
+```
+
+Now that our Employee Struct defines the years_of_service field before the name field, our list is sorted by years_of_service and then name.
