@@ -6,3 +6,6 @@ my_books/practical_sorting_book/book/
 # emacs
 *~
 \#*#
+
+# rust code
+my_books/practical_sorting_book/code/employee_example/target/*

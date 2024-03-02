@@ -69,4 +69,4 @@ fn main() {
 }
 ```
 
-Now that our Employee Struct defines the years_of_service field before the name field, our list is sorted by years_of_service and then name.
+Now that our Employee Struct defines the years_of_service field before the name field, our list is sorted by years_of_service and then name. This change is so easy to make that it can happen on accident. If you do not want it to happen on accident, I would suggest that you either have unit tests that can alert you when it happens or you implement the Traits yourself so that the sort implementation is no longer affected by the order of your fields.
