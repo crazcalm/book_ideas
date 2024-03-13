@@ -100,7 +100,7 @@ impl PokerHand {
         Ok(())
     }
 
-    fn is_flush(&self) -> bool {
+    fn have_flush(&self) -> bool {
         let mut result = true;
 
         let suite = &self.cards[0].suite;
@@ -133,7 +133,6 @@ impl PokerHand {
     }
 
     fn have_straight(&self) -> bool {
-        // TODO: Add unit tests
         let mut ranks: Vec<u8> = self.cards.iter().map(|card| card.name.clone()).collect();
 
         ranks.sort();
@@ -159,7 +158,6 @@ impl PokerHand {
     }
 
     fn set_hand_type(&mut self) -> Result<(), &'static str> {
-        // TODO: Add unit tests
         if self.cards.len() != 5 {
             return Err("Must have 5 Cards to set hand type");
         }
@@ -184,8 +182,7 @@ impl PokerHand {
             return Ok(());
         }
 
-        //TODO change is_flush to has_flush
-        match (self.have_straight(), self.is_flush()) {
+        match (self.have_straight(), self.have_flush()) {
             (false, false) => self.poker_hand_type = Some(PokerHandType::HighCard),
             (false, true) => self.poker_hand_type = Some(PokerHandType::Flush),
             (true, false) => self.poker_hand_type = Some(PokerHandType::Straight),
@@ -231,6 +228,222 @@ mod tests {
     }
 
     #[test]
+    fn test_set_hand_type() {
+        let cases = vec![
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(2, Suite::Diamond).unwrap(),
+                        Card::new(2, Suite::Club).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::FourOfAKind),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(2, Suite::Diamond).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::ThreeOfAKind),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Heart).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(5, Suite::Club).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::FullHouse),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(3, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::TwoPair),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::Pair),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::Flush),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::StraightFlush),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(14, Suite::Spade).unwrap(),
+                        Card::new(13, Suite::Spade).unwrap(),
+                        Card::new(12, Suite::Spade).unwrap(),
+                        Card::new(11, Suite::Spade).unwrap(),
+                        Card::new(10, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::RoyalFlush),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(6, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::Straight),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(14, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::Straight),
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(6, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                Some(PokerHandType::HighCard),
+            ),
+        ];
+
+        for (mut hand, expected) in cases {
+            let _ = hand.set_hand_type();
+            assert_eq!(hand.poker_hand_type, expected);
+        }
+    }
+
+    #[test]
+    fn test_have_straight() {
+        let cases = vec![
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                true,
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                true,
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                        Card::new(7, Suite::Spade).unwrap(),
+                        Card::new(8, Suite::Spade).unwrap(),
+                        Card::new(9, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                true,
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(7, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                false,
+            ),
+        ];
+
+        for (hand, expected) in cases {
+            assert_eq!(hand.have_straight(), expected);
+        }
+    }
+
+    #[test]
     fn test_card_rank_histogram() {
         let mut hand = PokerHand::new();
 
@@ -245,7 +458,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_flush_true() {
+    fn test_have_flush_true() {
         let mut hand = PokerHand::new();
 
         for x in [6, 8, 4, 4, 8] {
@@ -253,11 +466,11 @@ mod tests {
             hand.add_card(card).unwrap();
         }
 
-        assert!(hand.is_flush());
+        assert!(hand.have_flush());
     }
 
     #[test]
-    fn test_is_flush_false() {
+    fn test_have_flush_false() {
         let mut hand = PokerHand::new();
 
         for x in [6, 8, 4, 4] {
@@ -266,6 +479,6 @@ mod tests {
         }
         hand.add_card(Card::new(2, Suite::Spade).unwrap()).unwrap();
 
-        assert_eq!(hand.is_flush(), false);
+        assert_eq!(hand.have_flush(), false);
     }
 }
