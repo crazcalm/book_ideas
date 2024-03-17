@@ -137,23 +137,22 @@ impl PokerHand {
 
         ranks.sort();
 
-        match ranks[0] {
-            2 => ranks == [2, 3, 4, 5, 14] || ranks == [2, 3, 4, 5, 6],
-            _ => {
-                let mut result = true;
+        if ranks == [2, 3, 4, 5, 14] {
+            true
+        } else {
+            let mut result = true;
 
-                let mut expected = ranks[0];
-                for num in ranks {
-                    if num != expected {
-                        result = false;
-                        break;
-                    }
-
-                    expected += 1
+            let mut expected = ranks[0];
+            for num in ranks {
+                if num != expected {
+                    result = false;
+                    break;
                 }
 
-                result
+                expected += 1
             }
+
+            result
         }
     }
 
@@ -161,6 +160,8 @@ impl PokerHand {
         if self.cards.len() != 5 {
             return Err("Must have 5 Cards to set hand type");
         }
+
+        self.poker_hand_type = None;
 
         let card_rank_histogram = self.card_rank_histogram();
 
@@ -197,7 +198,10 @@ impl PokerHand {
             }
         }
 
-        Ok(())
+        match self.poker_hand_type {
+            None => Err("We unable to figure out your poker hand type"),
+            Some(ref _hand_type) => Ok(()),
+        }
     }
 }
 
@@ -369,7 +373,7 @@ mod tests {
                         Card::new(5, Suite::Heart).unwrap(),
                         Card::new(6, Suite::Heart).unwrap(),
                     ],
-                    poker_hand_type: None,
+                    poker_hand_type: Some(PokerHandType::FullHouse),
                 },
                 Some(PokerHandType::HighCard),
             ),
