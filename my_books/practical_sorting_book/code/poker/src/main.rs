@@ -203,6 +203,97 @@ impl PokerHand {
             Some(ref _hand_type) => Ok(()),
         }
     }
+
+    fn sort_hand(&mut self) -> Result<(), String> {
+
+	let _ = self.set_hand_type()?;
+	let card_rank_histogram = self.card_rank_histogram();
+	
+        if let Some(poker_hand_type) = &self.poker_hand_type {
+            match poker_hand_type {
+                PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind => {
+		    
+
+		    let priority_card_name = card_rank_histogram[0].0;
+                 
+                    self.cards.sort_by(|a, b| {
+                        if a.name == priority_card_name && b.name == priority_card_name {
+                            Ordering::Equal
+                        } else if a.name == priority_card_name && b.name != priority_card_name {
+                            Ordering::Less
+                        } else if a.name != priority_card_name && b.name == priority_card_name {
+                            Ordering::Greater
+                        } else {
+                            a.cmp(&b)
+                        }
+                    });
+
+                    Ok(())
+                }
+                PokerHandType::RoyalFlush
+                | PokerHandType::StraightFlush
+                | PokerHandType::Flush
+                | PokerHandType::Straight
+                | PokerHandType::HighCard => {
+                    self.cards.sort();
+
+                    if *poker_hand_type == PokerHandType::StraightFlush
+                        || *poker_hand_type == PokerHandType::Straight
+                    {
+                        // In the case where the straight is Ace, 5, 4 ,3, 2, 1, we need to list
+                        // the left by 1 -> 5, 4, 3, 2, Ace
+                        if self.cards[0].name == 14 && self.cards[1].name == 5 {
+                            self.cards.rotate_left(1);
+                        }
+                    }
+
+                    Ok(())
+                }
+                PokerHandType::FullHouse | PokerHandType::TwoPair => {
+		    let priority_1 = card_rank_histogram[0].0;
+		    let priority_2 = card_rank_histogram[1].0;
+		    
+                    self.cards.sort_by(|a, b| {
+                        if a.name == priority_1 && b.name == priority_1 {
+                            a.cmp(&b)
+                        } else if a.name == priority_1 && b.name == priority_2 {
+                            Ordering::Less
+                        } else if a.name == priority_2 && b.name == priority_1 {
+                            Ordering::Greater
+                        } else if a.name == priority_2 && b.name == priority_2 {
+                            a.cmp(&b)
+                        } else if a.name == priority_1
+                            && b.name != priority_1
+                            && b.name != priority_2
+                        {
+                            Ordering::Less
+                        } else if a.name == priority_2
+                            && b.name != priority_1
+                            && b.name != priority_2
+                        {
+                            Ordering::Less
+                        } else if a.name != priority_1
+                            && a.name != priority_2
+                            && b.name == priority_1
+                        {
+                            Ordering::Greater
+                        } else if a.name != priority_1
+                            && a.name != priority_2
+                            && b.name == priority_2
+                        {
+                            Ordering::Greater
+                        } else {
+                            a.cmp(&b)
+                        }
+                    });
+
+                    Ok(())
+                }
+            }
+        } else {
+            Err("Cannot sort because no poker hand type is specified".to_string())
+        }
+    }
 }
 
 fn main() {
