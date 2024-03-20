@@ -62,7 +62,8 @@ impl Ord for Card {
     }
 }
 
-#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
+// TODO: Learn why Option.unwrap() does not "move" when Copy is implemented
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
 enum PokerHandType {
     RoyalFlush,
     StraightFlush,
@@ -81,6 +82,14 @@ struct PokerHand {
     cards: Vec<Card>,
     poker_hand_type: Option<PokerHandType>,
 }
+
+impl PartialEq for PokerHand {
+    fn eq(&self, other: &Self) -> bool {
+        self.poker_hand_type == other.poker_hand_type && self.cards == self.cards
+    }
+}
+
+impl Eq for PokerHand {}
 
 impl PokerHand {
     fn new() -> Self {
@@ -205,93 +214,76 @@ impl PokerHand {
     }
 
     fn sort_hand(&mut self) -> Result<(), String> {
+        let _ = self.set_hand_type()?;
+        let card_rank_histogram = self.card_rank_histogram();
 
-	let _ = self.set_hand_type()?;
-	let card_rank_histogram = self.card_rank_histogram();
-	
-        if let Some(poker_hand_type) = &self.poker_hand_type {
-            match poker_hand_type {
-                PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind => {
-		    
+        let poker_hand_type = self.poker_hand_type.unwrap();
 
-		    let priority_card_name = card_rank_histogram[0].0;
-                 
-                    self.cards.sort_by(|a, b| {
-                        if a.name == priority_card_name && b.name == priority_card_name {
-                            Ordering::Equal
-                        } else if a.name == priority_card_name && b.name != priority_card_name {
-                            Ordering::Less
-                        } else if a.name != priority_card_name && b.name == priority_card_name {
-                            Ordering::Greater
-                        } else {
-                            a.cmp(&b)
-                        }
-                    });
+        match poker_hand_type {
+            PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind => {
+                let priority_card_name = card_rank_histogram[0].0;
 
-                    Ok(())
-                }
-                PokerHandType::RoyalFlush
-                | PokerHandType::StraightFlush
-                | PokerHandType::Flush
-                | PokerHandType::Straight
-                | PokerHandType::HighCard => {
-                    self.cards.sort();
-
-                    if *poker_hand_type == PokerHandType::StraightFlush
-                        || *poker_hand_type == PokerHandType::Straight
-                    {
-                        // In the case where the straight is Ace, 5, 4 ,3, 2, 1, we need to list
-                        // the left by 1 -> 5, 4, 3, 2, Ace
-                        if self.cards[0].name == 14 && self.cards[1].name == 5 {
-                            self.cards.rotate_left(1);
-                        }
+                self.cards.sort_by(|a, b| {
+                    if a.name == priority_card_name && b.name == priority_card_name {
+                        Ordering::Equal
+                    } else if a.name == priority_card_name && b.name != priority_card_name {
+                        Ordering::Less
+                    } else if a.name != priority_card_name && b.name == priority_card_name {
+                        Ordering::Greater
+                    } else {
+                        a.cmp(&b)
                     }
+                });
 
-                    Ok(())
-                }
-                PokerHandType::FullHouse | PokerHandType::TwoPair => {
-		    let priority_1 = card_rank_histogram[0].0;
-		    let priority_2 = card_rank_histogram[1].0;
-		    
-                    self.cards.sort_by(|a, b| {
-                        if a.name == priority_1 && b.name == priority_1 {
-                            a.cmp(&b)
-                        } else if a.name == priority_1 && b.name == priority_2 {
-                            Ordering::Less
-                        } else if a.name == priority_2 && b.name == priority_1 {
-                            Ordering::Greater
-                        } else if a.name == priority_2 && b.name == priority_2 {
-                            a.cmp(&b)
-                        } else if a.name == priority_1
-                            && b.name != priority_1
-                            && b.name != priority_2
-                        {
-                            Ordering::Less
-                        } else if a.name == priority_2
-                            && b.name != priority_1
-                            && b.name != priority_2
-                        {
-                            Ordering::Less
-                        } else if a.name != priority_1
-                            && a.name != priority_2
-                            && b.name == priority_1
-                        {
-                            Ordering::Greater
-                        } else if a.name != priority_1
-                            && a.name != priority_2
-                            && b.name == priority_2
-                        {
-                            Ordering::Greater
-                        } else {
-                            a.cmp(&b)
-                        }
-                    });
-
-                    Ok(())
-                }
+                Ok(())
             }
-        } else {
-            Err("Cannot sort because no poker hand type is specified".to_string())
+            PokerHandType::RoyalFlush
+            | PokerHandType::StraightFlush
+            | PokerHandType::Flush
+            | PokerHandType::Straight
+            | PokerHandType::HighCard => {
+                self.cards.sort();
+
+                if poker_hand_type == PokerHandType::StraightFlush
+                    || poker_hand_type == PokerHandType::Straight
+                {
+                    // In the case where the straight is Ace, 5, 4 ,3, 2, 1, we need to list
+                    // the left by 1 -> 5, 4, 3, 2, Ace
+                    if self.cards[0].name == 14 && self.cards[1].name == 5 {
+                        self.cards.rotate_left(1);
+                    }
+                }
+
+                Ok(())
+            }
+            PokerHandType::FullHouse | PokerHandType::TwoPair => {
+                let priority_1 = card_rank_histogram[0].0;
+                let priority_2 = card_rank_histogram[1].0;
+
+                self.cards.sort_by(|a, b| {
+                    if a.name == priority_1 && b.name == priority_1 {
+                        a.cmp(&b)
+                    } else if a.name == priority_1 && b.name == priority_2 {
+                        Ordering::Less
+                    } else if a.name == priority_2 && b.name == priority_1 {
+                        Ordering::Greater
+                    } else if a.name == priority_2 && b.name == priority_2 {
+                        a.cmp(&b)
+                    } else if a.name == priority_1 && b.name != priority_1 && b.name != priority_2 {
+                        Ordering::Less
+                    } else if a.name == priority_2 && b.name != priority_1 && b.name != priority_2 {
+                        Ordering::Less
+                    } else if a.name != priority_1 && a.name != priority_2 && b.name == priority_1 {
+                        Ordering::Greater
+                    } else if a.name != priority_1 && a.name != priority_2 && b.name == priority_2 {
+                        Ordering::Greater
+                    } else {
+                        a.cmp(&b)
+                    }
+                });
+
+                Ok(())
+            }
         }
     }
 }
@@ -319,6 +311,237 @@ mod tests {
             hand.add_card(card).expect("Too many Cards!!!");
 
             println!("{:?}", hand);
+        }
+    }
+
+    #[test]
+    fn test_sort_hand() {
+        let cases = vec![
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(2, Suite::Diamond).unwrap(),
+                        Card::new(2, Suite::Club).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(2, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Heart).unwrap(),
+                    Card::new(2, Suite::Diamond).unwrap(),
+                    Card::new(2, Suite::Club).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(2, Suite::Diamond).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(2, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Heart).unwrap(),
+                    Card::new(2, Suite::Diamond).unwrap(),
+                    Card::new(14, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Heart).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(5, Suite::Club).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(5, Suite::Spade).unwrap(),
+                    Card::new(5, Suite::Heart).unwrap(),
+                    Card::new(5, Suite::Club).unwrap(),
+                    Card::new(6, Suite::Spade).unwrap(),
+                    Card::new(6, Suite::Heart).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(3, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(3, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Heart).unwrap(),
+                    Card::new(2, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Heart).unwrap(),
+                    Card::new(4, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(2, Suite::Heart).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(2, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Heart).unwrap(),
+                    Card::new(5, Suite::Heart).unwrap(),
+                    Card::new(4, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(14, Suite::Spade).unwrap(),
+                    Card::new(6, Suite::Spade).unwrap(),
+                    Card::new(4, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Spade).unwrap(),
+                        Card::new(6, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(6, Suite::Spade).unwrap(),
+                    Card::new(5, Suite::Spade).unwrap(),
+                    Card::new(4, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(12, Suite::Spade).unwrap(),
+                        Card::new(11, Suite::Spade).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                        Card::new(13, Suite::Spade).unwrap(),
+                        Card::new(10, Suite::Spade).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(14, Suite::Spade).unwrap(),
+                    Card::new(13, Suite::Spade).unwrap(),
+                    Card::new(12, Suite::Spade).unwrap(),
+                    Card::new(11, Suite::Spade).unwrap(),
+                    Card::new(10, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(6, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(6, Suite::Heart).unwrap(),
+                    Card::new(5, Suite::Heart).unwrap(),
+                    Card::new(4, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Spade).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(4, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(14, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: None,
+                },
+                vec![
+                    Card::new(5, Suite::Heart).unwrap(),
+                    Card::new(4, Suite::Spade).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Spade).unwrap(),
+                    Card::new(14, Suite::Heart).unwrap(),
+                ],
+            ),
+            (
+                PokerHand {
+                    cards: vec![
+                        Card::new(2, Suite::Spade).unwrap(),
+                        Card::new(3, Suite::Spade).unwrap(),
+                        Card::new(14, Suite::Spade).unwrap(),
+                        Card::new(5, Suite::Heart).unwrap(),
+                        Card::new(6, Suite::Heart).unwrap(),
+                    ],
+                    poker_hand_type: Some(PokerHandType::FullHouse),
+                },
+                vec![
+                    Card::new(14, Suite::Spade).unwrap(),
+                    Card::new(6, Suite::Heart).unwrap(),
+                    Card::new(5, Suite::Heart).unwrap(),
+                    Card::new(3, Suite::Spade).unwrap(),
+                    Card::new(2, Suite::Spade).unwrap(),
+                ],
+            ),
+        ];
+
+        for (mut hand, expected) in cases {
+            let _ = hand.sort_hand().unwrap();
+            for x in 0..=4 {
+                assert_eq!(
+                    hand.cards[x].name, expected[x].name,
+                    "{:?}\n Should Equal\n{:?}\nFor Index {x}",
+                    hand.cards, expected
+                );
+                assert_eq!(
+                    hand.cards[x].suite, expected[x].suite,
+                    "{:?}\n Should Equal\n{:?}\nFor Index {x}",
+                    hand.cards, expected
+                )
+            }
         }
     }
 
