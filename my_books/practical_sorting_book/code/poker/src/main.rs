@@ -63,6 +63,7 @@ impl Ord for Card {
 }
 
 // TODO: Learn why Option.unwrap() does not "move" when Copy is implemented
+// Answer: Because we now Copy the value instead of moving it.
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
 enum PokerHandType {
     RoyalFlush,
