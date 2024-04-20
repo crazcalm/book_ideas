@@ -36,7 +36,37 @@ list_2.sort_by(|a, b| a.cmp(b).reverse());
 
 assert_eq!(list_1, list_2);</code>
 
-															<!--Left off here-->
+		  <p>This means that, for <code>list_2</code>, we are correctly arranging the numbers into decending order via the sorting process.</p>
+
+		  <p>What if we wanted to arrange all of the numbers in ascending order and have all of the odd numbers appear before all of the even numbers? We know we cannot do this with the <code>sort</code> method because we have no way of telling it how to partition groups of numbers, but we can do this with the <code>sort_by</code> method. We accomplish this by writing a function that determines if <code>a</code> or <code>b</code> is odd, and, if only one of them is odd, we give it priority. Keeping the default behavior in mind in which the item of least value gets placed in front, we give odd numbers priority over even numbers by making sure we always report that the odd number is less than the even number.</p>
+
+		  <code>use std::cmp::Ordering;
+
+fn main() {
+    let mut list: Vec<i32> = vec![3,2,5,1,6,7,8,0,9,4];
+    
+	list.sort_by(|a, b| {	
+		let a_is_odd = a.abs() % 2 == 1;
+		let b_is_odd = b.abs() % 2 == 1;
+	
+		if a_is_odd && b_is_odd {
+			a.cmp(b)
+		} else if a_is_odd {
+			Ordering::Less
+		} else if b_is_odd {
+			Ordering::Greater
+		} else {
+			a.cmp(b)
+		}
+    });
+    
+	println!("{:?}", list);
+	}</code>
+
+
+		    <p>In the above example, our closure function checks to see if <code>a</code> is odd and if <code>b</code> is odd. If both <code>a</code> and <code>b</code> are odd (or even), then we can do a regular comparision between <code>a</code> and <code>b</code> because niether of them have priority over the other. If <code>a</code> is odd and <code>b</code> is even, we need to report that <code>a</code> is less than <code>b</code> so that <code>a</code> always gets placed in front of <code>b</code>. If <code>b</code> is odd and <code>a</code> is even, then we report that <code>a</code> is greater than <code>b</code> so that <code>b</code> can always be placed in front of <code>a</code>.</p>
+
+		    <p>The end result of passing this closure function to our <code>sort_by</code> method is that all of the odd numbers are placed in front of all of the even numbers and the odd number and the even number, within their respective groups, are arranged in ascending order.</p>
 		  
 			<p>It’s now time to turn our attention to the features that EPUB 3 introduces to expand
 				on the traditional reading experience; the excitement around EPUB 3 doesn’t come

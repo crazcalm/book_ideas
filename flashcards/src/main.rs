@@ -111,8 +111,13 @@ fn main() -> std::io::Result<()> {
                 }
             }
             Command::Flip => {
-                state = "back";
-                text = cards[current_index].back();
+                if state.eq("back") {
+                    state = "front";
+                    text = cards[current_index].front();
+                } else {
+                    state = "back";
+                    text = cards[current_index].back();
+                }
             }
             Command::Shuffle => {
                 let mut rng = rand::thread_rng();
