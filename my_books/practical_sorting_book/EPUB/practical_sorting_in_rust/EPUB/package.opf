@@ -44,22 +44,17 @@
 		<item id="cover-image" properties="cover-image" href="covers/9781449328030_lrg.jpg" media-type="image/jpeg"/>
 		<item id="id-id2442754" href="index.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id-id2632344" href="pr01.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2604743" href="pr01s02.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2629773" href="pr01s03.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2620395" href="pr01s04.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2638681" href="pr01s05.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id-id2611884" href="ch01.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2627310" href="ch01s02.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id-id2635343" href="ch02.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2622654" href="ch02s02.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2624850" href="ch02s03.xhtml" media-type="application/xhtml+xml"/>
+
 		<item id="id-id2640702" href="ch03.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2641220" href="ch03s02.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2642385" href="ch03s03.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2644001" href="ch03s04.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2644238" href="ch03s05.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2645594" href="ch03s06.xhtml" media-type="application/xhtml+xml"/>
+
 		<item id="id-id2645682" href="ch04.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645683" href="ch05.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645684" href="ch06.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645685" href="ch07.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645686" href="ch08.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645687" href="ch09.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id-id2645862" href="co01.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id2670620" href="images/web/epub3_0401.png" media-type="image/png"/>
 		<item id="spi_ad" href="spi-ad.xhtml" media-type="application/xhtml+xml"/>
@@ -87,22 +82,16 @@
 		<itemref idref="id-id2442754"/>
 		<itemref idref="htmltoc" linear="yes"/>
 		<itemref idref="id-id2632344"/>
-		<itemref idref="id-id2604743"/>
-		<itemref idref="id-id2629773"/>
-		<itemref idref="id-id2620395"/>
-		<itemref idref="id-id2638681"/>
 		<itemref idref="id-id2611884"/>
-		<itemref idref="id-id2627310"/>
 		<itemref idref="id-id2635343"/>
-		<itemref idref="id-id2622654"/>
-		<itemref idref="id-id2624850"/>
 		<itemref idref="id-id2640702"/>
-		<itemref idref="id-id2641220"/>
-		<itemref idref="id-id2642385"/>
-		<itemref idref="id-id2644001"/>
-		<itemref idref="id-id2644238"/>
-		<itemref idref="id-id2645594"/>
+
 		<itemref idref="id-id2645682"/>
-		<itemref idref="id-id2645862"/>
+		<itemref idref="id-id2645683"/>
+		<itemref idref="id-id2645684"/>
+		<itemref idref="id-id2645685"/>
+		<itemref idref="id-id2645686"/>
+		<itemref idref="id-id2645687"/>
+		
 	</spine>
 </package>
