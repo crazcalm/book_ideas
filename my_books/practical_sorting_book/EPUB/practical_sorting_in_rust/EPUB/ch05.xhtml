@@ -3,76 +3,43 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 4. Conclusion</title>
+		<title>Chapter 4: Common Uses For Sorting</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-			<h2 id="c4_h" class="title">Chapter 4. Conclusion</h2>
-			<p>EPUB 3 holds out much promise, but only if you care about the quality of your content
-				and actively work to make it better. If I’ve done my job, though, accessibility is
-				hopefully no longer a foreign concept or impossible-sounding ideal anymore. It’s
-				fundamentally about high-quality data, with hooks in for people who can’t consume
-				the content in its native format, whether auditory or visual.</p>
-			<p>The people you need to produce accessible EPUBs are not hard to find, either. Web
-				content developers abound as the internet generation comes of age. And unlike in the
-				early dark days of web accessibility, more and more people are learning WCAG and
-				WAI-ARIA guidelines for accessible production. They’re not skills you can ignore as
-				a developer, as so much basic accessibility legislation is premised on them now.</p>
-			<p>My point, however, is only that creating accessible EPUB 3 publications is not a
-				costly proposition. It doesn’t require seeking out highly-specialized skills that
-				won’t provide you a return on your investment. Reflowable web content is the
-				direction publishing is heading in, and well down the road to.</p>
-			<p>But to wrap up, no guide can ever make you take action, only impart some measure of
-				knowledge. Assuming I’ve met that threshold, the onus is now on you to take what
-				you’ve learned and put it to good use.</p>
-			<section class="sect1">
-				<h2 class="title" id="_epub_3_best_practices_teaser">EPUB 3 Best Practices
-					Teaser</h2>
-				<p><em>Accessible EPUB 3</em> is an excerpt of the book EPUB 3 Best Practices,
-					currently in development for publication in 2012.</p>
-				<p>For more details and updates on its anticipated release date, keep an eye on the
-					web page for the book:</p><table style="border: 0; " class="simplelist">
-					<tr>
-						<td><a class="ulink" href="http://shop.oreilly.com/product/0636920024897.do"
-								target="_top"
-							>http://shop.oreilly.com/product/0636920024897.do</a></td>
-					</tr>
-				</table>
-				<figure class="figure-float" id="best_practices_cover">
-					<img id="I_mediaobject4_d1e2998" src="images/web/epub3_0401.png" alt="Cover art for EPUB 3 Best Practices, coming in 2012" />
-					<figcaption class="title">Figure 4-1. EPUB 3 Best Practices, coming in 2012</figcaption>
-				</figure>
-				<section class="sect2">
-					<h3 class="title" id="_about_the_book">About the Book</h3>
-					<p>The new EPUB 3 specification from the IDPF incorporates a wide range of
-						technologies and functionality that are set to revolutionize electronic
-						publishing. The format is poised to make the static two-dimensional page a
-						thing of the past, introducing the world to new rich multimedia reading
-						experiences and scripted interactivity. But a specification that offers so
-						much can be a daunting thing to learn.</p>
-					<p>EPUB 3 Best Practices steps in to help fill the knowledge void. Authored by
-						people involved in the development of the specification, and with extensive
-						experience in electronic publishing, this guide will provide you with a
-						solid foundation on which to begin developing your own EPUBs. Topics covered
-						include:</p>
-					<ul class="itemizedlist">
-						<li class="listitem"><p> A comprehensive survey of accessible production
-								features and best practices </p></li>
-						<li class="listitem"><p> A walkthrough of the new global language support
-								features </p></li>
-						<li class="listitem"><p> An introduction to the new multimedia elements and
-								how to use them to embed content </p></li>
-						<li class="listitem"><p> A guide to best practices for authoring of
-								interactive elements and scripting </p></li>
-						<li class="listitem"><p> A review of publication and distribution metadata
-							</p></li>
-						<li class="listitem"><p> Techniques for fixed and adaptive layouts </p></li>
-					</ul>
-					<p>EPUB 3 Best Practices is a must-read for anyone looking to unleash the
-						potential of the new format.</p>
-				</section>
-			</section>
+		  <h2 id="c4_h" class="title">Chapter 4: Common Uses For Sorting</h2>
+
+		  <p>Sorting is typcally done for two reasons: comparing and search. When comparing lists of elements, order matters because equality means that every element at each index is equal. For example, <code>[1, 2, 3]</code> is not equal to <code>[2, 3, 1]</code> even though they contain the same elements.</p>
+
+		  <code>let a = vec![1,2,3,4];
+let b = vec![2,3,1,4];
+
+println("{:?} == {:?} => {}", a, b, a == b);
+</code>
+
+
+		  <p>However, if we sort both lists prior to checking for equality, we ensure that the elements of both lists have ben ordered in the manner. This gives us the expectation that, as long as both lists have the same elements, the sorted order of the list should be equal as well.</p>
+
+		  <code>let mut a = vec![1,2,3,4];
+let mut b = vec![2,3,1,4];
+
+a.sort()
+b.sort()
+
+println("{:?} == {:?} => {}", a, b, a == b);
+</code>
+
+		  <p>When we talk about search we usually are talking about searching for an element or a group of elements from a collection of elements via a specific criteria. For example, given the list <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code>, asking if the number 5 is in the list is  single element search and asking for all the values less than 5 is an example of searching for a group of elements via a specific criteria.</p>
+
+		  <p>Sorting makes searching easier because, if your collection of elements are sorted, then you know that you can leverage the rules of the logical arrangement to reach your answer faster. For example, sorting <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code> in ascending order gives us <code>[0, 1, 2, 3, 4, 6, 7, 8, 9]</code>. If we want to check if the number 5 is in the list, we now have a few ways we can go about it.</p>
+
+		  <p>A method that would work on both the sorted and unsorted version of the list is the brute force method where we look at every element of the list, starting from the left side and going right, and check if they are equal to 5. For an unsorted list, this makes sense because there is always the possibility that the next element in the list is 5. For a sorted list, this seems silly because you end up doing a number of unnecessary checks. For example, if you start from the left most element, which is 0, and move right, you will eventually reach the number 6. Sorting in acending order means that every number to the right of 6 are equal to or great than 6, which means that 5 cannot be to the right of 6. Stopping our search here would save us 3 comparisions <code>(7, 8, 9)</code>.</p>
+
+		  <p>If we stared from the right most element, which is the number 9, and moved left, we would eventually reach the number 4. Ascending order also mean that all the elements left of 4 are equal to or less than 4, which means that 5 cannot be to the left of 4. Stpping our search here would save us 4 comparisons <code>(0, 1, 2, 3)</code>.</p>
+
+		    <p>Given how much the rules of ascending order tells us about the list, there is no harm in starting our search from an arbitrary location. For example, if we started our search in th middle of the list, which is at number 4, we know that if the number 5 is in the list, then it would be to the right of number 4, This means that our search algorithm now knows what direction to continue its search in. If your search algorithm decided to check the element to the right of 4, it will see the number 6 and know that 5 cannot be in this list. In this scenario, our algorithm just saved us 7 comparisons all because we understood how the list was ordered.</p>
+		  
 		</section>
 	</body>
 </html>
