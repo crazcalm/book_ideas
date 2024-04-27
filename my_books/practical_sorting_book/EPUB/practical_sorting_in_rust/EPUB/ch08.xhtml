@@ -3,76 +3,80 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 4. Conclusion</title>
+		<title>Chapter 8: Super Traits</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-			<h2 id="c4_h" class="title">Chapter 4. Conclusion</h2>
-			<p>EPUB 3 holds out much promise, but only if you care about the quality of your content
-				and actively work to make it better. If I’ve done my job, though, accessibility is
-				hopefully no longer a foreign concept or impossible-sounding ideal anymore. It’s
-				fundamentally about high-quality data, with hooks in for people who can’t consume
-				the content in its native format, whether auditory or visual.</p>
-			<p>The people you need to produce accessible EPUBs are not hard to find, either. Web
-				content developers abound as the internet generation comes of age. And unlike in the
-				early dark days of web accessibility, more and more people are learning WCAG and
-				WAI-ARIA guidelines for accessible production. They’re not skills you can ignore as
-				a developer, as so much basic accessibility legislation is premised on them now.</p>
-			<p>My point, however, is only that creating accessible EPUB 3 publications is not a
-				costly proposition. It doesn’t require seeking out highly-specialized skills that
-				won’t provide you a return on your investment. Reflowable web content is the
-				direction publishing is heading in, and well down the road to.</p>
-			<p>But to wrap up, no guide can ever make you take action, only impart some measure of
-				knowledge. Assuming I’ve met that threshold, the onus is now on you to take what
-				you’ve learned and put it to good use.</p>
-			<section class="sect1">
-				<h2 class="title" id="_epub_3_best_practices_teaser">EPUB 3 Best Practices
-					Teaser</h2>
-				<p><em>Accessible EPUB 3</em> is an excerpt of the book EPUB 3 Best Practices,
-					currently in development for publication in 2012.</p>
-				<p>For more details and updates on its anticipated release date, keep an eye on the
-					web page for the book:</p><table style="border: 0; " class="simplelist">
-					<tr>
-						<td><a class="ulink" href="http://shop.oreilly.com/product/0636920024897.do"
-								target="_top"
-							>http://shop.oreilly.com/product/0636920024897.do</a></td>
-					</tr>
-				</table>
-				<figure class="figure-float" id="best_practices_cover">
-					<img id="I_mediaobject4_d1e2998" src="images/web/epub3_0401.png" alt="Cover art for EPUB 3 Best Practices, coming in 2012" />
-					<figcaption class="title">Figure 4-1. EPUB 3 Best Practices, coming in 2012</figcaption>
-				</figure>
-				<section class="sect2">
-					<h3 class="title" id="_about_the_book">About the Book</h3>
-					<p>The new EPUB 3 specification from the IDPF incorporates a wide range of
-						technologies and functionality that are set to revolutionize electronic
-						publishing. The format is poised to make the static two-dimensional page a
-						thing of the past, introducing the world to new rich multimedia reading
-						experiences and scripted interactivity. But a specification that offers so
-						much can be a daunting thing to learn.</p>
-					<p>EPUB 3 Best Practices steps in to help fill the knowledge void. Authored by
-						people involved in the development of the specification, and with extensive
-						experience in electronic publishing, this guide will provide you with a
-						solid foundation on which to begin developing your own EPUBs. Topics covered
-						include:</p>
-					<ul class="itemizedlist">
-						<li class="listitem"><p> A comprehensive survey of accessible production
-								features and best practices </p></li>
-						<li class="listitem"><p> A walkthrough of the new global language support
-								features </p></li>
-						<li class="listitem"><p> An introduction to the new multimedia elements and
-								how to use them to embed content </p></li>
-						<li class="listitem"><p> A guide to best practices for authoring of
-								interactive elements and scripting </p></li>
-						<li class="listitem"><p> A review of publication and distribution metadata
-							</p></li>
-						<li class="listitem"><p> Techniques for fixed and adaptive layouts </p></li>
-					</ul>
-					<p>EPUB 3 Best Practices is a must-read for anyone looking to unleash the
-						potential of the new format.</p>
-				</section>
-			</section>
+		  <h2 id="c4_h" class="title">Chapter 8: Super Traits</h2>
+
+		  <p>The Ord Trait, which is required for sorting, is a Super Trait. A Super Trait is a regular Trait with the additional requirement of listing other traits that must implement for this Trait to work. Here is a snippet of the Ord Trait definition:</p>
+
+		  <code>pub trait Ord: Eq + PartialOrd {
+    // Required method
+    fn cmp(&amp;self, other: &amp;Self) -> Ordering;
+	...
+}
+		  </code>
+
+		  <p>The <code>Eq + PartialOrd</code> part means that the <code>Eq</code> and the <code>PartialOrd</code> Traits are required for the implementation of the Ord Trait. Please note the when a Super Trait lists required Traits, those Traits can also be Super Traits. For example, <code>Eq</code> is also a super trait. The <code>Eq</code> Trait requires that the <code>PartialEq</code> Trait be implemented.</p>
+
+		  <code>pub trait Eq: PartialEq { }</code>
+
+		  <p>This means that implementing the Ord Trait means that we also have to implement the Eq Trait, the ParialEq Trait and the PartialOrd Trait. Lucky for us, we are allowed to generate default implementations for all of these Traits using derive.</p>
+
+		  <code>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+
+fn main() {
+    let mut list_of_employees = vec![
+		Employee{name: "Marcus".to_string(), years_of_service: 2},
+		Employee{name: "Jovanna".to_string(), years_of_service: 5},
+		Employee{name: "Carmen".to_string(), years_of_service: 2},
+		Employee{name: "Christy".to_string(), years_of_service: 2},
+		Employee{name: "Dillon".to_string(), years_of_service: 0},
+		Employee{name: "Jerry".to_string(), years_of_service: 1},
+    ];
+
+    list_of_employees.sort();
+    
+	println!("{:#?}", list_of_employees);
+}
+		  </code>
+
+		  <p>In the above example, we derived all of the necessary Traits needed for sorting and then we were able to sort the list of employee struct instances. Given that these are derived implementations of Traits, we know that, when sorting, our comparisons are dictated by the order of the fields. Since the Emploee Struct defined the name field first, that field is the first field compared during the sorting process. As a result, our sorted list is by name and then by years of service.</p>
+
+		  <p>By switching the order of the Employee Structs fields, we can change the sort so that the list will be sorted by years of service and then by name.</p>
+
+		  <code>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+struct Employee {
+    years_of_service: u32,
+	name: String,
+}
+
+fn main() {
+    let mut list_of_employees = vec![
+		Employee{name: "Marcus".to_string(), years_of_service: 2},
+		Employee{name: "Jovanna".to_string(), years_of_service: 5},
+		Employee{name: "Carmen".to_string(), years_of_service: 2},
+		Employee{name: "Christy".to_string(), years_of_service: 2},
+		Employee{name: "Dillon".to_string(), years_of_service: 0},
+		Employee{name: "Jerry".to_string(), years_of_service: 1},
+    ];
+
+    list_of_employees.sort();
+    
+	println!("{:#?}", list_of_employees);
+}
+		  </code>
+
+		  <p>Now that our Employee Struct defined the years of service field before the name field, our list is sorted by years of service and then by name.</p>
+
+		  <p>This change is so easy to make that it can happen on accident. If you do not want it to happen on accident, I would suggest that you either have unit tests that will alert you to this accident or that you implement the Triats yourself so that the sort implementation is no longer dictated by the order of your fields.</p>
+		 
 		</section>
 	</body>
 </html>
