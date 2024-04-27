@@ -3,76 +3,73 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 4. Conclusion</title>
+		<title>Chapter 7: Working with Structs</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-			<h2 id="c4_h" class="title">Chapter 4. Conclusion</h2>
-			<p>EPUB 3 holds out much promise, but only if you care about the quality of your content
-				and actively work to make it better. If I’ve done my job, though, accessibility is
-				hopefully no longer a foreign concept or impossible-sounding ideal anymore. It’s
-				fundamentally about high-quality data, with hooks in for people who can’t consume
-				the content in its native format, whether auditory or visual.</p>
-			<p>The people you need to produce accessible EPUBs are not hard to find, either. Web
-				content developers abound as the internet generation comes of age. And unlike in the
-				early dark days of web accessibility, more and more people are learning WCAG and
-				WAI-ARIA guidelines for accessible production. They’re not skills you can ignore as
-				a developer, as so much basic accessibility legislation is premised on them now.</p>
-			<p>My point, however, is only that creating accessible EPUB 3 publications is not a
-				costly proposition. It doesn’t require seeking out highly-specialized skills that
-				won’t provide you a return on your investment. Reflowable web content is the
-				direction publishing is heading in, and well down the road to.</p>
-			<p>But to wrap up, no guide can ever make you take action, only impart some measure of
-				knowledge. Assuming I’ve met that threshold, the onus is now on you to take what
-				you’ve learned and put it to good use.</p>
-			<section class="sect1">
-				<h2 class="title" id="_epub_3_best_practices_teaser">EPUB 3 Best Practices
-					Teaser</h2>
-				<p><em>Accessible EPUB 3</em> is an excerpt of the book EPUB 3 Best Practices,
-					currently in development for publication in 2012.</p>
-				<p>For more details and updates on its anticipated release date, keep an eye on the
-					web page for the book:</p><table style="border: 0; " class="simplelist">
-					<tr>
-						<td><a class="ulink" href="http://shop.oreilly.com/product/0636920024897.do"
-								target="_top"
-							>http://shop.oreilly.com/product/0636920024897.do</a></td>
-					</tr>
-				</table>
-				<figure class="figure-float" id="best_practices_cover">
-					<img id="I_mediaobject4_d1e2998" src="images/web/epub3_0401.png" alt="Cover art for EPUB 3 Best Practices, coming in 2012" />
-					<figcaption class="title">Figure 4-1. EPUB 3 Best Practices, coming in 2012</figcaption>
-				</figure>
-				<section class="sect2">
-					<h3 class="title" id="_about_the_book">About the Book</h3>
-					<p>The new EPUB 3 specification from the IDPF incorporates a wide range of
-						technologies and functionality that are set to revolutionize electronic
-						publishing. The format is poised to make the static two-dimensional page a
-						thing of the past, introducing the world to new rich multimedia reading
-						experiences and scripted interactivity. But a specification that offers so
-						much can be a daunting thing to learn.</p>
-					<p>EPUB 3 Best Practices steps in to help fill the knowledge void. Authored by
-						people involved in the development of the specification, and with extensive
-						experience in electronic publishing, this guide will provide you with a
-						solid foundation on which to begin developing your own EPUBs. Topics covered
-						include:</p>
-					<ul class="itemizedlist">
-						<li class="listitem"><p> A comprehensive survey of accessible production
-								features and best practices </p></li>
-						<li class="listitem"><p> A walkthrough of the new global language support
-								features </p></li>
-						<li class="listitem"><p> An introduction to the new multimedia elements and
-								how to use them to embed content </p></li>
-						<li class="listitem"><p> A guide to best practices for authoring of
-								interactive elements and scripting </p></li>
-						<li class="listitem"><p> A review of publication and distribution metadata
-							</p></li>
-						<li class="listitem"><p> Techniques for fixed and adaptive layouts </p></li>
-					</ul>
-					<p>EPUB 3 Best Practices is a must-read for anyone looking to unleash the
-						potential of the new format.</p>
-				</section>
-			</section>
+		  <h2 id="c4_h" class="title">Chapter 7: Structs and Traits</h2>
+
+		  <p>The great thing about structs is that everything we learned about numbers and tuples applies to structs.</p>
+
+		  <p>For exmaple, here is an employee struct with two fields; <code>name</code> and <code>years_of_service</code></p>
+		  <code>struct Employee {
+    name: String,
+    years_of_service: u32
+}
+		  </code>
+
+		  <p>This struct has two fields. One field is of tuple <code>String</code> and the other is of type <code>u32</code>, which is similar to a Tuple in one of our previous examples. The difference between these two data types is that the Struct has named fields while the Tuple did not. For example, when using the tuple we accessed the employee name via its index in the tuple (<code>tuple.0</code>) whereas, for the Struct, we access the name of the employee by calling the name property on the Struct instance (<code>struct.name</code>).</p>
+
+		  <p>Another difference between Structs and Tuples is that Tuples come with a number of Traits already implemented for them. For example, we were able to print out debug information for out Tuples because Tuple implements the Debug Trait. We were also able to sort a list of Tuples because Tuples implement the Ord Trait. In Rust, our Structs do not come with any implemented Traits. This means that if you want the functionality provided by a Trait for your Struct, then you have to implement that Trait.</p>
+
+		  <p>When implementing a Trait for a Struct, you have to create a <code>impl</code> block that states the Trait you are implementing, the struct you are implementing it for, and, withing the code block, you must implement all of the mandatory methods for the Trait.</p>
+
+		  <p>For example, the Debug Trait has one required method. To implement Debug for our Employee Struct, we would do the following:</p>
+
+		  <code>use std::fmt;
+
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+
+impl fmt::Debug for Employee {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -> fmt::Result {
+        f.debug_struct("Employee")
+         .field("name", &amp;self.name)
+         .field("years_of_service", &amp;self.years_of_service)
+         .finish()
+    }
+}
+
+fn main(){
+	let marcus = Employee{name: "Marcus".to_string(), years_of_service: 2};
+	println!("{:?}", marcus);
+}
+		  </code>
+
+		  <p>The <code>fmt</code> method is the required method that must be implemented for the Debug Trait. Its function signature is defined by the Trait (You can find it in the documentation of the Trait). When implementing a required method, we are responsible for fillinf out the function body. For the <code>fmt</code> method, out function body is filled with a lot of boilerplate code that can be pulled from the Debug Trait documentation. That said, from a high level, we are telling the formatter (<code>fmt::Formatter</code>) how to read our object. The <code>f.debug_struct</code> line tells the formatter that our object is a Struct. We pass in the name of the Struct, so that the formatter knows what to call our Struct. We then use the <code>fields</code> method to inform the formatter what our field names are called and where it can find the values for those fields. Lastly, we call <code>finish</code> to tell the formatter that we will not give you more any more information and that you can now do whatever proccessing you need to do to create our Debug string.</p>
+
+
+		  <p>Implementing the Debug Trait for every Struct you create can become tedious. Luckily, Rust provides a way to automatically generate commonly used traits. We do this with the derived attribute, which allows us to pass in a list of Traits we would like to generate default implementations for (Note: the <a href="https://doc.rust-lang.org/book/appendix-03-derivable-traits.html">Rust Book</a> lists the traits that we can use Derive with).</p>
+
+		  <p> Here is how we would use <code>derive</code> to generate a default implementation for the Debug Trait:</p>
+		  <code>#[derive(Debug)]
+struct Employee {
+    name: String,
+    years_of_service: u32
+}
+
+fn main(){
+	let marcus = Employee{name: "Marcus".to_string(), years_of_service: 2};
+	println!("{:?}", marcus);
+	
+	//output: Employee { name: "Marcus", years_of_service: 2 }
+}
+		  </code>
+
+		  <p>Using derive to generate the implatation of Debug creates the same code that we wrote in our previous example. This means that for the cases where you do not want any custom code in your debug representation, using derive to generate your implementation is a valid choice that will save you time.</p>
 		</section>
 	</body>
 </html>
