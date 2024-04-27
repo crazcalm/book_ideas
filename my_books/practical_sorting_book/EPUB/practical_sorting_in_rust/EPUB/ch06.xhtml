@@ -3,76 +3,77 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 4. Conclusion</title>
+		<title>Chapter 6: Multi-dimensional Sorting</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-			<h2 id="c4_h" class="title">Chapter 4. Conclusion</h2>
-			<p>EPUB 3 holds out much promise, but only if you care about the quality of your content
-				and actively work to make it better. If I’ve done my job, though, accessibility is
-				hopefully no longer a foreign concept or impossible-sounding ideal anymore. It’s
-				fundamentally about high-quality data, with hooks in for people who can’t consume
-				the content in its native format, whether auditory or visual.</p>
-			<p>The people you need to produce accessible EPUBs are not hard to find, either. Web
-				content developers abound as the internet generation comes of age. And unlike in the
-				early dark days of web accessibility, more and more people are learning WCAG and
-				WAI-ARIA guidelines for accessible production. They’re not skills you can ignore as
-				a developer, as so much basic accessibility legislation is premised on them now.</p>
-			<p>My point, however, is only that creating accessible EPUB 3 publications is not a
-				costly proposition. It doesn’t require seeking out highly-specialized skills that
-				won’t provide you a return on your investment. Reflowable web content is the
-				direction publishing is heading in, and well down the road to.</p>
-			<p>But to wrap up, no guide can ever make you take action, only impart some measure of
-				knowledge. Assuming I’ve met that threshold, the onus is now on you to take what
-				you’ve learned and put it to good use.</p>
-			<section class="sect1">
-				<h2 class="title" id="_epub_3_best_practices_teaser">EPUB 3 Best Practices
-					Teaser</h2>
-				<p><em>Accessible EPUB 3</em> is an excerpt of the book EPUB 3 Best Practices,
-					currently in development for publication in 2012.</p>
-				<p>For more details and updates on its anticipated release date, keep an eye on the
-					web page for the book:</p><table style="border: 0; " class="simplelist">
-					<tr>
-						<td><a class="ulink" href="http://shop.oreilly.com/product/0636920024897.do"
-								target="_top"
-							>http://shop.oreilly.com/product/0636920024897.do</a></td>
-					</tr>
-				</table>
-				<figure class="figure-float" id="best_practices_cover">
-					<img id="I_mediaobject4_d1e2998" src="images/web/epub3_0401.png" alt="Cover art for EPUB 3 Best Practices, coming in 2012" />
-					<figcaption class="title">Figure 4-1. EPUB 3 Best Practices, coming in 2012</figcaption>
-				</figure>
-				<section class="sect2">
-					<h3 class="title" id="_about_the_book">About the Book</h3>
-					<p>The new EPUB 3 specification from the IDPF incorporates a wide range of
-						technologies and functionality that are set to revolutionize electronic
-						publishing. The format is poised to make the static two-dimensional page a
-						thing of the past, introducing the world to new rich multimedia reading
-						experiences and scripted interactivity. But a specification that offers so
-						much can be a daunting thing to learn.</p>
-					<p>EPUB 3 Best Practices steps in to help fill the knowledge void. Authored by
-						people involved in the development of the specification, and with extensive
-						experience in electronic publishing, this guide will provide you with a
-						solid foundation on which to begin developing your own EPUBs. Topics covered
-						include:</p>
-					<ul class="itemizedlist">
-						<li class="listitem"><p> A comprehensive survey of accessible production
-								features and best practices </p></li>
-						<li class="listitem"><p> A walkthrough of the new global language support
-								features </p></li>
-						<li class="listitem"><p> An introduction to the new multimedia elements and
-								how to use them to embed content </p></li>
-						<li class="listitem"><p> A guide to best practices for authoring of
-								interactive elements and scripting </p></li>
-						<li class="listitem"><p> A review of publication and distribution metadata
-							</p></li>
-						<li class="listitem"><p> Techniques for fixed and adaptive layouts </p></li>
-					</ul>
-					<p>EPUB 3 Best Practices is a must-read for anyone looking to unleash the
-						potential of the new format.</p>
-				</section>
-			</section>
+		  <h2 id="c4_h" class="title">Chapter 6: Multi-dimensional Sorting</h2>
+
+		  <p>Multi-dimensional sorting is the idea of sorting based on more than one property. A data structure that allows us to easily create items with more than one property are tuple.</p>
+
+		  <p>A Tuple is a finite heterogeneous sequence. Finite meaning that there are a fix number of elements within a tuple. Heterogenous meanint that each element of a tuple can be of a different type.</p>
+
+		  <p>The tuple <code>(String, u32)</code> states that the first element is of the tuple is of type <code>String</code> and the second element of the tuple is of type <code>u32</code>. You can think of the elements of your tuple as properties of the object. For example, <code>String</code> could represent a person's name while <code>u32</code> could represent their age.</p>
+
+		  <p>If we were to sort a list of these tuples of name and age, we could do it by the first element, the second element or a combination of the two elements. To sort only by the first element or the second element would be a one dimensional sort because we would only be sorting by one property. An example of this is sorting a group of people by name. In this type of sort, if two people have the same name, then we can arbitrarily place one person in front of the other because we know that any ordering of these two people would be correct. However, if we were to do a multi-dimensional sort and sort by both name and age, people with the same name would then be sorted by their age. In other words, we will first sort the group of people by name, and, if multiple people have the same name, we would then sort those people by age.</p>
+
+		  <p>This way of sorting where we look at one property and, if two elements have the same value for that property, we then compare the next property is the default sort implementation for Rust Tuples. This implementation start by using the left most elemement in the Tuple for comparison and then moves right as needed.</p>
+
+		  <code>	let mut test = vec![
+		("a".to_string(), 1),
+		("ab".to_string(), 0),
+		("b".to_string(), 2),
+		("a".to_string(), 0),
+		("ba".to_string(), 0),
+	];
+    test.sort();
+
+    println!("{:?}", test);
+	
+	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
+		  </code>
+
+		  <p>In the above example, we use the default sort implementation to sort a list of tuple. We can replicate this sort with the <code>sort_by</code> method by passing the appropriate closure function.</p>
+
+		  <code>    let mut test = vec![
+		("a".to_string(), 1),
+		("ab".to_string(), 0),
+		("b".to_string(), 2),
+		("a".to_string(), 0),
+		("ba".to_string(), 0),
+	];
+
+    test.sort_by(|a, b| a.0.cmp(&amp;b.0).then(a.1.cmp(&amp;b.1)));
+    
+	println!("{:?}", test);
+
+	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
+		  </code>
+
+		  <p>In our closure we used the <code>cmp</code> method to compare the first element of Tuples <code>a</code> and <code>b</code>. The <code>cmp</code> method returns an Ordering Enum. The Ordering Enum has a <code>then</code> method that allows us to chain Ordering Enums together when the initial <code>cmp</code> result is not Ordering::Equal.</p>
+
+
+		  <p>Though our tuple has multiple properties, we can still sort by a single property. For example, we could take a list of employees represented by the tuple <code>(&amp;str, u32)</code> where <code>&amp;str</code> is represents their name and <code>u32</code> represents their years with the company and sort them in descending order by how many years they have been with the company.</p>
+
+		  <code>let mut list = vec![
+	("Marcus".to_string(), 2),
+	("Jovanna".to_string(), 5),
+	("Carmen".to_string(), 2),
+	("Christy".to_string(), 2),
+	("Dillon".to_string(), 0),
+	("Jerry".to_string(), 1)
+];
+
+list.sort_by(|a, b| a.1.cmp(&amp;b.1).reverse());
+    
+println!("{:?}", list);
+
+//output: [("Jovanna", 5), ("Marcus", 2), ("Carmen", 2), ("Christy", 2), ("Jerry", 1), ("Dillon", 0)]
+		  </code>
+
+		  <p>When looking at the output of our sort, you will notice that employees that have worked the same number of years are not presenting in alphabetical order. This is intentional because the function we are using to sort them ignores their name.</p>
+		  
 		</section>
 	</body>
 </html>
