@@ -55,7 +55,12 @@
 		<item id="id-id2645685" href="ch07.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id-id2645686" href="ch08.xhtml" media-type="application/xhtml+xml"/>
 		<item id="id-id2645687" href="ch09.xhtml" media-type="application/xhtml+xml"/>
-		<item id="id-id2645862" href="co01.xhtml" media-type="application/xhtml+xml"/>
+
+		<item id="id-id2645688" href="ch10.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645689" href="ch11.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645690" href="ch12.xhtml" media-type="application/xhtml+xml"/>
+		<item id="id-id2645691" href="ch13.xhtml" media-type="application/xhtml+xml"/>
+
 		<item id="id2670620" href="images/web/epub3_0401.png" media-type="image/png"/>
 		<item id="spi_ad" href="spi-ad.xhtml" media-type="application/xhtml+xml"/>
 		<item id="spi_global_ad" href="images/spi_global_ad.png" media-type="image/png"/>
@@ -92,6 +97,10 @@
 		<itemref idref="id-id2645685"/>
 		<itemref idref="id-id2645686"/>
 		<itemref idref="id-id2645687"/>
+		<itemref idref="id-id2645688"/>
+		<itemref idref="id-id2645689"/>
+		<itemref idref="id-id2645690"/>
+		<itemref idref="id-id2645691"/>
 		
 	</spine>
 </package>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
+	lang="en">
+	<head>
+		<title>Chapter 10: Poker Hands</title>
+		<link rel="stylesheet" type="text/css" href="css/epub.css" />
+	</head>
+	<body>
+		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
+		  <h2 id="c4_h" class="title">Chapter 10: Poker Hands</h2>
+
+		  <p>We have learned how to sort lists of items into one logical arrangement. Admittedly, this covers the practical cases of sorting. Moving towards the impractical, let's explore how we handle sorting into more than one logical arrangement.</p>
+
+		  <p>Poker is a great example of this because, when we compare poker hands, we need to be able to sort the hand so that all the high value cards are in the front. The poker hand type dictates the logical arrangement that your sort needs to adhere to. Below is a list of the poker hands.</p>
+
+		  <p>TODO: Add list of poker hands</p>
+
+		  <p>If we had a One Pair hand of <code>&lt;3, 2, 1, 5, 2&gt;</code>, we would want to sort our hand so that the pair is at the front of the list, followed by the rest of the cards in high card order (descending order based on card rank) <code>&lt;2, 2, 5, 3, 1&gt;</code>. This ordering makes it easy to compare One Pair hands. For example, if hand one is <code>&lt;2, 2, 5, 3 ,1&gt;</code> and hand two is <code>&lt;6, 6, 3, 2, 1&gt;</code>. We can compare each card in the hands from left to right and know which hand is greater. This technique works even when two hands have the same pair; <code>&lt;2, 2, 5, 3, 1&gt; vs &lt;2, 2, 6, 4, 1&gt;</code>.</p>
+
+		  <p>If we have a High Card poker hand, then we would want to sort our cards solely by our high cards. So a High Card sort of <code>&lt;4, 8, J, A, 5&gt;</code> would become <code>&lt;A, J, 8, 5, 4&gt;</code>. Based on the examples of One Pair and High Card hands, we see that out sorting function is dictated by our poker hand type.</p>
+
+		  <!-- Continue from here and create a new section for "Creating Cards" -->
+		  
+
+		  
+		</section>
+	</body>
+</html>
