@@ -20,10 +20,96 @@
 
 		  <p>If we have a High Card poker hand, then we would want to sort our cards solely by our high cards. So a High Card sort of <code>&lt;4, 8, J, A, 5&gt;</code> would become <code>&lt;A, J, 8, 5, 4&gt;</code>. Based on the examples of One Pair and High Card hands, we see that out sorting function is dictated by our poker hand type.</p>
 
-		  <!-- Continue from here and create a new section for "Creating Cards" -->
-		  
+		  <section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h">
+		    <h2 class="title">Chapter 10: Creating Cards</h2>
 
+		    <p>In order to create poker hands, we first need to create cards.</p>
+
+		    <pre>#[derive(Debug)]
+enum Suite {
+    Heart,
+    Club,
+    Spade,
+    Diamond,
+}
+
+struct Card {
+    rank: u8,
+    suite: Suite,
+}
+
+fn main(){}
+		    </pre>
+
+		    <p>In out example, we created a Card Struct that has two fields; rank and suite. The rank field is of type <code>u8</code> and represents the Rank of the card. The suite field is a Suite Enum that have four variants; Heart, Club, Spade, and Diamond.</p>
+
+		  <p>To make the cards visually less confusing, we are going to implement the Debug Trait and make sure that the numbeers 11 - 14 show J (Jack) Q (Queen), K (King) and A (Ace).</p>
+
+		<pre>impl fmt::Debug for Card {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+	let rank = match self.rank {
+	    x @ 2 ..=10 =&gt; x.to_string(),
+	    11 =&gt; "J".to_string(),
+	    12 =&gt; "Q".to_string(),
+	    13 =&gt; "K".to_string(),
+	    14 =&gt; "A".to_string(),
+	    _ => panic!("number {:?} is not a valid card number", &amp;self.name),
+	};
+
+	f.debug_struct("Card")
+	    .field("rank", &amp;rank)
+	    .field("suite", &amp;self.suite)
+	    .finish()
+    }
+}
+</pre>
+
+		<p>In our <code>fmt</code> method, we used a match statement on the Card.rank field to create our wanted string representations for the card;s rank. If the value of the Card.rank is between 2 and 10, thenw e will convert them number to a String. We accomplished this by using the <code>@</code> symbol in our match statement. The code <code>x @ 2 ..= 10</code> allows us to check if the value of Card.rank is in the range of <code>2 ..= 10</code> and, if so, bind that value to <code>x</code>. Once that value has been bound to <code>x</code>, we use the match arm to convert <code>x</code> into a String and return it. If the value of Card.rank is 11, 12, 13 or 14, it will match with its own specific arm. All other values, which are not valid ranks for poker, will be caught by the <code>_</code> case and raise an error. After we have our local representation of our card's rank, we pass it to our formatter to be displayed.</p>
+
+		<p>Please note that we are also displaying the Card.suite value, which means that out Suite Enum needs to implement Debug. This is done by using derive to generate the debug implementation for Suite Enum.</p>
+
+		<p>Raising an error when we are trying to print the Debug representation for our Card does not seem ideal. To prevent this from happening, we will create an associative function called <code>new</code> that will be responsible for creating our Cards. This function will verify check the value passed in for Card.rank and make sure it is valid before returning the newly created Card.</p>
+
+		<pre>impl Card {
+    fn new(rank: u8, suite: Suite) -&gt; Result&lt;Self, &amp;'static str&gt; {
+		match name {
+			x @ 2..=14 =&gt; Ok(Card{rank, suite}),
+			_ => Err("name must be in the range of 2 - 14"),
+		}
+    }
+}
+		</pre>
+
+		<p>Our Card::new functionr returns a Result Enum, which has two variants; Ok and Err. If we are able to create a valid Card, we return a new Card instance wrapped in an Ok. If we are unable to create a valid Card, we return an Err with a message explaining what went wrong.</p>
+
+		<p>Now that we can create Cards, we need to import the Ord Trait so that we can sort our cards.</p>
+
+		<p>In poker, we know that a Card's suite only matters when the poker hand type says it does. Since a card's suite does not always matter, we do not want to consider it during our sorting process. This means that we have to manually implement our Traits because deriving them would result in our Cards being sorted by rank and then by suite, which is something we do not want.</p>
+
+		<pre>impl PartialEq for Card {
+    fn eq(&amp;self, other: &amp;Self) -&lt; bool {
+        self.rank == other.rank
+    }
+}
+
+impl Eq for Card {}
+
+impl PartialOrd for Card {
+    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
+        Some(self.cmp(&amp;other))
+    }
+}
+
+impl Ord for Card {
+    fn cmp(&amp;self, other: &amp;Self) -&gt; Ordering {
+        self.rank.cmp(&amp;other.rank).reverse()
+    }
+}
+</pre>
+
+		<p>Now that we have implemented the Ord Trait, we now have the ability to sort a list of Cards. Please note that the <code>cmp</code> function uses the <code>reverse</code> method after comparing the name fields to make sure that the highest values get placed in front of the sorted list.</p>
 		  
+		  </section>
 		</section>
 	</body>
 </html>
