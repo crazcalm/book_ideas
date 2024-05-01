@@ -3,667 +3,229 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 9: Implementing our Traits</title>
+		<title>Chapter 11: Poker - Sorting Strategies</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-		  <h2 id="c4_h" class="title">Chapter 9: Implementing our Traits</h2>
+		  <h2 id="c4_h" class="title">Chapter 10: Poker - Sorting Strategies</h2>
 
-		  <p>Lets walk through the work needed to implement the Ord Trait for our Employee Struct so that we can gain a better understanding of what is happening. We will approach this systematically by writing unit tests for the desired order and then implementing each trait one at a time while also removing it from the derived Trait list.</p>
+		  <p>As mentioned, the strategy used to sort our poker hand depends on the type of poker hand we have. For simplicity, we will assume that we have a 5 card hand. With this in mind, we can categories pocker hands into the following groups</p>
 
-		  <p>For this example, we want our list of Employees to be sorted by years of service and then by name. With that in mind, here is the unit test that we will use to verify that our changes have not affected our sorting.</p>
+		  <h3>Sort by Card Name</h3>
+		  <p>Technically speaking, High Card and Straight are the only poker hand in this category because they are the only hands judge solely by card rank. That said, sorting by card rank is the secondary sort for most poker hands. For example, if you sre comparing One Pair poker hands and both hands have a pair of aces, you wil have to look at the rest of the cards in both hands to determine the winner.</p>
 
-		  <code>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
-struct Employee {
-    years_of_service: u32,
-    name: String,
+		  <h3>Sort by Card Rank and Suite</h3>
+		  <p>Royal Flush, Straight Flush and Flush can all be sorted by card rank while giving priority to a sing suite. If you only have 5 cards in your hand like we do, then you can ignore the suite because all 5 cards have the same suite which means that we no longer have to worry about prioritizing the suite. As a result, we can use the "Sort by Card Rank" to sort these hands.</p>
+
+		  <p>Note: For the poker hands Straight and Straight Flush, we do have an edge case involving our Ace. An Ace can be at the front of the Straight <code>[A, K, Q, J, 10]</code> or at the end of a Straught <code>[5, 4, 3, 2, A]</code>. Since our Ace has a Card Rank of 14, it will naturally moved towards the front of the list. This means that post sorting, we have to manually check for the edge case where the Ace should be at the end of the list and move it there.</p>
+
+		  <h3>Sort by Card Rank with Priority to a Single Card Rank</h3>
+		  <p>Two Pair, Three Pair and Four of a Kind are in the same category because they all prioritize a single Card Rank when sorting. Once all the cards with the prioritized Card Rank are placed in the front of the list, the rest of the cards get sorted by High Card.</p>
+
+		  <h3>Sort by Card Rank while prioritizing 2 Card Ranks (Order Matters)</h3>
+		  <p>This sort is specifically for the poker hand Full House. A Full Houe is when you have Three of a kind and One Pair in the same hand. To sort this hand, we want to prioritize the Three of a Kind over the One Pair. This means that we have to indentify which card rank is associated with the Three of a Kind and make sure that we prioritize that card rank over the one that is associated with the One Pair.</p>
+
+		  <h2>PokerHand</h2>
+		  <p>A couple things you may have noticed when listing out the sorting strategies for the poker hands is that most of these sorting strategies depend on extra information. Mainly, we need to know what Poker Hand Type we have and which Card Ranks we need to prioritize. So lets start ourlining our code</p>
+
+		  <p> Our PokerHand Struct needs to hold a hand of cards and it needs to have a place to store its Poker Hand Type.</p>
+
+		  <pre>#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
+enum PokerHandType {
+    RoyalFlush,
+    StraightFlush,
+    FourOfAKind,
+    FullHouse,
+    Flush,
+    Straight,
+    ThreeOfAKind,
+    TwoPair,
+    Pair,
+    HighCard,
 }
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		  </code>
-
-		  <p>The Ord Trait is a super Trait that requires the Eq Trait and the PartialOrd Trait to be implemented. The Eq Trait is also a Super Trait and it requires PartialEq to be implemented. We'll start by implementing the PartialEq Trait.</p>
-
-		  <p>PartialEq is a Trait that has one required method called <code>eq</code> that allows us to compare one instance of the Struct to another instance of the Struct. This method will return a boolean to denote whether or not these Struct instances are equal. With regards to implementation, we will compare the year of service field and the name field of two Struct instances and return the resulting boolean.</p>
-
-		  <code>#[derive(Debug, Eq, PartialOrd, Ord)]
-struct Employee {
-    years_of_service: u32,
-    name: String,
-}
-
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-		    }</code>
-
-		  <p>In the example, we implemented the PartialEq Trait for Employee and removed that Trait from the derived list. Feel free to run the unit test to make sure everything still works as expected.</p>
-
-		  <p>Next, we will implement the Eq Trait. The Eq Trait has not required methods. This means that as long as you implement PartialEq Trait, you can get the Eq Trait for free by writing implementing it and leaving the code block for it empty.</p>
-
-		  <code>#[derive(Debug, PartialOrd, Ord)]
-struct Employee {
-    years_of_service: u32,
-    name: String,
-}
-
-impl Eq for Employee {}
-
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		  </code>
-
-		  <p>The next Trait we will implement is the PartialOrd Trait. This Trait has one required method called <code>partial_cmp</code> that compares two instance of the smae type and returns an <code>Option&lt;Ordering&gt;</code>. Please note that this method is very similar to the <code>cmp</code> method that comes from the Ord Trait. The difference between these two methods is that <code>cmp</code> returns an Ordering Enum and <code>partial_cmp</code> returns an Option that contains an Ordering Enum.</p>
-
-		  <code>use std::cmp::Ordering;
-
-#[derive(Debug, Ord)]
-struct Employee {
-    years_of_service: u32,
-    name: String,
-}
-
-impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
-        Some(
-            self.years_of_service
-                .cmp(&amp;other.years_of_service)
-                .then(self.name.cmp(&amp;other.name)),
-        )
-    }
-}
-
-impl Eq for Employee {}
-
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		    </code>
-
-		    <p>When implementing the the <code>partial_cmp</code> method, we can leverage the fact that each of the field types implement the Ord Trait. As such we can compare the years of service field and the name field using their types <code>cmp</code> method and chain the comparisions with the <code>then</code> method from the Ordering Enum that is returned from the <code>cmp</code> method. We wrap all of this in a <code>Some</code> because we need to return <code>Some&lt;Ordering&gt;</code>. Also, because the Ordering Enum is explicitly being mentioned in our function signature, we will need to make sure to import it at the top of the file.</p>
-
-		    <code>use std::cmp::Ordering;
-
-#[derive(Debug, Ord)]
-struct Employee {
-    name: String,
-    years_of_service: u32,
-}
-
-impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
-        Some(
-            self.years_of_service
-                .cmp(&amp;other.years_of_service)
-                .then(self.name.cmp(&amp;other.name)),
-        )
-    }
-}
-
-impl Eq for Employee {}
-
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		      </code>
-
-		      <p>At this point, we have implemented enough Traits to prevent the chnging of Struct field order from altering our sorting algorithm. To demonstate that, switch the ordering of our Employee Struct fields so that name comes before years of service.</p>
-		 
-
-		      <p>The last Trait we have to implement is the Ord Trait. This Trait has one required method called <code>cmp</code>. Given the similarities of the <code>cmp</code> method to the <code>partial_cmp</code> method, we can implement <code>cmp</code> using <code>partial_cmp</code>.</p>
-
-			<code>use std::cmp::Ordering;
 
 #[derive(Debug)]
-struct Employee {
-    name: String,
-    years_of_service: u32,
+struct PokerHand {
+    cards: Vec&lt;Card&gt;,
+    poker_hand_type: Option&lt;PokerHandType&gt;,
 }
 
-impl Ord for Employee {
-    fn cmp(&amp;self, other: &amp;Self) -> Ordering {
-        self.partial_cmp(&amp;other).unwrap()
+impl PokerHand {
+	def new() -&gt; Self {
+		PokerHand{cards: Vec::new(), poker_hand_type: None}
+	}
+}
+</pre>
+
+		      <p>In our code, we made the PokerHandType an enum where the variants are the different poker hands. We also order the poker hand variants from the best to the worst. We did this so that we can use the derived implementations of Ord Trait and all the other Traits needed to implement the Ord Trait. This is our first time doing this with Enums, but it works the same way as it does with Structs. This means we can now compare and sort the varaints of our PokerHandType enum and, because we defined them in the order of strongest hand to weakest hand, the sorted list will place the strongest hands in front of the weaker ones.</p>
+
+		      <p>For our PokerHand Struct, we have our Vector of Cards and a Optional PokerHandType Enum. The PokerHandType is optional because it should only be deduced after we have all five Cards in our hand. With that in mind, lets create functions and methods for our PokerHand Struct that allow us to create a new hand and add cards to it.</p>
+
+		      <pre>impl PokerHand {
+    fn new() -&gt; Self {
+        PokerHand {
+            cards: Vec::new(),
+            poker_hand_type: None,
+        }
+    }
+
+    fn add_card(&amp;mut self, card: Card) -&gt; Result&lt;(), &amp;'static str&gt; {
+        // Our card hand limit is 5.
+        if self.cards.len() == 5 {
+            return Err("Max hand limit is 5");
+        }
+
+        self.cards.push(card);
+        Ok(())
     }
 }
+</pre>
+		      <p>Our <code>name</code> function creates an empty PokerHand with no cards and the poker_hand_type set to None. Our <code>add_cards</code> method allows us to add a Card to our PokerHand. This method returns a Result because our PokerHand has a 5 card limit. If we try to add a 6th card, we will raise an error.</p>
 
-impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
-        Some(
-            self.years_of_service
-                .cmp(&amp;other.years_of_service)
-                .then(self.name.cmp(&amp;other.name)),
-        )
+		      <p>Noe that we have the ability to add cards to our hand, lets move on to deducing our poker_hand_type. We can do this with three helper methods; <code>card_rank_histogram</code>, <code>have_flush</code>, and <code>have_straight</code>.</p>
+
+																									 <p>The <code>card_rank_histogram</code> method counts how many times each card rank is represented in our hand and returns a histogram in the form of a list of tuples where the tuple is <code>(card_rank as u8, count as usize)</code>. This list will be returned sorted by count and the card rank in descending order. This means that if our hand is <code>[1, 9, 1, 1, 1]</code>, we will get <code>[(1, 4), (9, 1)]</code>.</p>
+
+		    <p>The reason this histogram is important is because a number of poker hands are based on how many times a card rank is represented in your hand. For example,FourOfAKind, FullHouse, ThreeOfAKind, TwoPair and OnePair can all be deduced by looking at the first two entries of our histogram list (ie, the top two hightest represented card ranks in our hand).</p>
+
+		    <p>The <code>have_flush</code> and <code>have_straight</code> methods return a boolean. They are used to deduce all other poker hand types. For example, if you have a flush and a stright, then we must look at your cards because you could have a RoyalFlush, StriaghtFlush or a Flush. If you do not have a Flush, but you have a straight, then you have a Straight. If you do not have a Flush or a Straight, then you have a HighCard hand.</p>
+
+		    <pre>fn card_rank_histogram(&amp;self) -&gt; Vec&lt;(u8, usize)&gt; {
+    let mut map = HashMap::new();
+
+    for card in &amp;self.cards {
+        map.entry(card.name)
+            .and_modify(|count| *count += 1)
+            .or_insert(1);
+    }
+
+    let mut results: Vec&lt;(u8, usize)&gt; = map
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone() as usize))
+        .collect();
+    results.sort_by(|a, b| a.1.cmp(&amp;b.1).then(a.0.cmp(&amp;b.0)).reverse());
+
+    results
+}
+</pre>
+
+			  <p>The <code>card_rank_histogram</code> code uses a HashMap to get a count of the card ranks. The HashMap Entry API allows us to do the counting logic and add entries into the HashMap in one line. <code>map.entry(card.rank)</code> is the starting point to the Entry API. This call returns an Entry Enum Variant that is either Occupied or Vacant. If the <code>card.rank</code> exists in the HashMap, <code>map.entry</code> will return <code>Entry::Occupied</code>. The <code>Entry::Occupied</code> enum variant has code for the <code>and_modify</code> method that will take the value assciated with this key and pass it to the anonymous function passed to the <code>and_modify</code> method. We then take this value, which represents our count and then add one to it.</p>
+
+			  <p>If <code>card.rank</code> does not exist in the hashmap, <code>map.entry</code> will return <code>Entry::Vacant</code>. The <code>Entry::Vacant</code> enum variant has code for the <code>or_insert(1)</code> method that will add <code>card.rank</code> to the HashMap as a new entry and set the value to 1.</p>
+
+		<p>The confusing part about the Entry API is that it leaverages No-Op (no operation_ calls to work. For example, the <code>or_insert</code> method is called on the <code>Entry::Occupied</code> enum variant, but it has not effect because it is a No-Op call. The same is true for calling the <code>and_modify</code> method on the <code>Entry::Vacant</code> enum variant. So, in order to understand what the code is doing, you have to think about that happens in both cases. If it is the first time the HashMap ha seen this card rank, we give it a count of 1. If it is not the first time we have seen this card rank, we take its current count and add 1 to it.</p>
+
+
+			  <p>The next part of the code uses iterators to convert the HashMap into a Vector of Tuples. We do this via the <code>map</code> method, which give us access to the key values of the HashMap as a tuple. Not wanting to take ownership of these values, we clone and cast them them as needed to get the type we want. We then use the <code>collect</code> method to place out tuples in a Vector. We do this by explicitly stating the type of our variable (<code>let mut results: Vec&lt;(u8, usize)&gt; = ...</code>).</p>
+
+			  <p>Once we have our list, we sort it by the count (tuple index 1_ and then card rank (tuple index 0). Calling <code>reverse</code> on the end of the compare chain ensures that the largest values will be at the beginning of the list, which gives us descending order.</p>
+
+			  <pre>fn have_flush(&amp;self) -&gt; bool {
+    let mut result = true;
+
+    let suite = &amp;self.cards[0].suite;
+    for card in &amp;self.cards[1..] {
+        if card.suite != *suite {
+            result = false;
+            break;
+        }
+    }
+
+    result
+}
+</pre>
+
+			<p>The <code>has_flush</code> code is straight forward in the sense that we look at the suite of the first card in the list and then check to see if the rest of the cards in the list have the same suite. If so, we have a Flush and return true. Otherwise we return false.</p>
+
+		      <pre>fn have_straight(&amp;self) -&gt; bool {
+    let mut ranks: Vec&lt;u8&gt; = self.cards.iter().map(|card| card.name.clone()).collect();
+
+    ranks.sort();
+
+    if ranks == [2, 3, 4, 5, 14] {
+        true
+    } else {
+        let mut result = true;
+
+	    let mut expected = ranks[0];
+        for num in ranks {
+            if num != expected {
+                result = false;
+                break;
+            }
+
+        expected += 1
+        }
+
+    result
     }
 }
+</pre>
 
-impl Eq for Employee {}
+			<p>The <code>have_straight</code> code starts off by creating a mutable list of card ranks. We do this so that we can sort them because, in theory, to have a straight means that your first rank in the list is your starting point and every rank after it should be +1 of the prevous rank. the exception to this rule is when your striaght starts at the Ace (<code>[A, 2, 3, 4, 5]</code>). In that case, your sorted lidt would be <code>[2, 3, 4, 5, 14]</code>. In the code, we explicitly check for this case to make sure it gets handle and, for all other cases, we use our "in thoery" logic to check if the hand has a straight.</p>
 
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
+			<p>Now that we have all of the helper methods done, we can write the code to deduce and set our poker hand type.</p>
+
+			<pre>    fn set_hand_type(&amp;mut self) -&gt; Result&lt;(), &amp;'static str&gt; {
+        if self.cards.len() != 5 {
+            return Err("Must have 5 Cards to set hand type");
+        }
+
+        self.poker_hand_type = None;
+
+        let card_rank_histogram = self.card_rank_histogram();
+
+        // Check Poker hand Types that have multiple cards of the same rank
+        if card_rank_histogram[0].1 == 4 {
+            self.poker_hand_type = Some(PokerHandType::FourOfAKind);
+        } else if card_rank_histogram[0].1 == 3 &amp;&amp; card_rank_histogram[1].1 == 2 {
+            self.poker_hand_type = Some(PokerHandType::FullHouse);
+        } else if card_rank_histogram[0].1 == 3 &amp;&amp; card_rank_histogram[1].1 == 1 {
+            self.poker_hand_type = Some(PokerHandType::ThreeOfAKind);
+        } else if card_rank_histogram[0].1 == 2 &amp;&amp; card_rank_histogram[1].1 == 2 {
+            self.poker_hand_type = Some(PokerHandType::TwoPair);
+        } else if card_rank_histogram[0].1 == 2 &amp;&amp; card_rank_histogram[1].1 == 1 {
+            self.poker_hand_type = Some(PokerHandType::Pair)
+        }
+
+        // Check to see if we should return early
+        if self.poker_hand_type.is_some() {
+            return Ok(());
+        }
+
+        match (self.have_straight(), self.have_flush()) {
+            (false, false) =&gt; self.poker_hand_type = Some(PokerHandType::HighCard),
+            (false, true) =&gt; self.poker_hand_type = Some(PokerHandType::Flush),
+            (true, false) =&gt; self.poker_hand_type = Some(PokerHandType::Straight),
+            (true, true) =&gt; {
+                let mut ranks: Vec&lt;u8&gt; = self.cards.iter().map(|card| card.name.clone()).collect();
+                ranks.sort();
+                if ranks[0] == 10 {
+                    self.poker_hand_type = Some(PokerHandType::RoyalFlush);
+                } else {
+                    self.poker_hand_type = Some(PokerHandType::StraightFlush);
+                }
+            }
+        }
+
+        match self.poker_hand_type {
+            None =&gt; Err("We unable to figure out your poker hand type"),
+            Some(ref _hand_type) =&gt; Ok(()),
+        }
     }
-}
+</pre>
 
-fn main() {}
+			<p>The <code>set_hand</code> method first checks to see if we have 5 cards in our hand. The is a mandatory step because our code was written the the assumption of our hands only having 5 cards. If we have more or less than 5 cards, the code will not work as expected.</p>
 
-#[cfg(test)]
-mod test {
-    use super::Employee;
+			<p>Next, we set <code>self.poker_hand_type</code> to None. This is important because we will use this value to check to see if we should return early. For example,if <code>self.poker_hand_type</code> is set to <code>Some</code>, then we know that we have deduced our poker hand type and we have no need to run any more checks.</p>
 
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
+			<p>After that, we call our <code>card_rank_histogram</code> method to obtain the count of the card ranks which are ordered by count and then rank in descending order so that the largest values appear first in the tuple. Knowing this, we use the card rank histogram to check the cases for FourOfAKind, FullHouse, ThreeOfAKind, TwoPair and OnePair. If any of these cases are tru, we set <code>self.poker_hand_type</code> to te appropriate poker hand type.</p>
 
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
+			<p>At this point, we check to see if <code>self.poker_hand_type</code> is set. If so, we return early. If not, it means that we still need to check the other cases. The other cases are flushes and straights cases. We use a match statement to list out the cases of <code>have_flush</code> and <code>have_straight</code>. For each case, we set <code>self.poker_hand_type</code> appropriately.</p>
 
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}</code>
-
-			  <p>Congratulations! We have implemented the Ord Trait for our Employee Struct.</p>
-
-			  <p>Before we move on, there is something I have to mention about Super Traits. Given the relationships of the dependencies, it is easy to mistakingly assume that the methods of the Sub Traits must be used to implement the Super Traits. This directional ordering does not exist. For example, even though the Ord Trait is a Super Trait that requires the PArtialOrd Trait, we can use the Ord Trait to implement the PartialOrd Trait.</p>
-
-			  <code>use std::cmp::Ordering;
-
-#[derive(Debug)]
-struct Employee {
-    name: String,
-    years_of_service: u32,
-}
-
-impl Ord for Employee {
-    fn cmp(&amp;self, other: &amp;Self) -> Ordering {
-        self.years_of_service
-            .cmp(&amp;other.years_of_service)
-            .then(self.name.cmp(&amp;other.name))
-    }
-}
-
-impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
-        Some(self.cmp(other))
-    }
-}
-
-impl Eq for Employee {}
-
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-</code>
+			<p>By this point, we have checked all of the possible poker hand cases. In thoery, <code>self.poker_hand_type</code> should be set by now. However, there is always the possbility that some part of our code is not correct. As such, we end the methodby checking to see if <code>self.poker_hand_type</code> was set. If it was set, we return an Ok. If it was not set, we return an error.</p>
 			  
-			    <p>In the above example, we took the comparison logic out of the <code>partial_cmp</code> method and put it into the <code>cmp</code> method. Then we called the <code>cmp</code> method within the <code>partial_cmp</code> method. Running our unit tests shows us that this change does not affect our sorting order.</p>
-			    
 		</section>
 	</body>
 </html>
