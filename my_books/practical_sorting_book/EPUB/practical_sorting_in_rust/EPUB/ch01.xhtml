@@ -17,24 +17,24 @@
 
 		  <p>1 and 2 are both numbers, but Rust has different types of numbers. If 1 is of type u8 and 2 is of type i32, then we cannot compare them.</p>
 
-		  <code>let one: u8 = 1;
+		  <pre>let one: u8 = 1;
 let two: i32 = 2;
 
-println!("{} > {} = {}", one, two, one > two);</code>
+println!("{} > {} = {}", one, two, one > two);</pre>
 
 		  <p>It is only when 1 and 2 are of the same type that we can compare them.</p>
 
-		  <code>let one: u8 = 1;
+		  <pre>let one: u8 = 1;
 let two: u8 = 2;
-println!("{} > {} = {}", one, two, one > two);</code>
+println!("{} > {} = {}", one, two, one > two);</pre>
 
 
 		  <p>For simple examples, we do not have to specify the type because Rust has type inference, which means, in the absense of an explicit type, the compilier will make an educated guess at which type to use. Coming back the our comparison of <code>1 > 2</code>, the compilier will note that these numbers are being compared and set them to be the same type</p>
 
-		  <code>let one = 1;
+		  <pre>let one = 1;
 let two = 2;
 
-		    println!("{} > {} = {}", one, two, one > two);</code>
+		    println!("{} > {} = {}", one, two, one > two);</pre>
 		      
 		</section>
 	</body>

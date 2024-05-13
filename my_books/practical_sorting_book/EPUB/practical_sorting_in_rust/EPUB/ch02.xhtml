@@ -11,25 +11,25 @@
 
 		  <p>Once you know that your items are comparable, you can then put them into a Vector and use the Vector's <code>sort</code> method to order them. Given that the sort method can re-arrange the items within the Vector, the Vector must be mutable.</p>
 
-		  <code>
+		  <pre>
 let mut list = vec![3,2,5,1,6,7,8,0,9,4];
 list.sort();
-println!("{:?}", list);</code>
+println!("{:?}", list);</pre>
 
 
 		  <p>In the above example, we use <code>{:?}</code> to print out the list instead of <code>{}</code>. This is because <code>{}</code> is used for objects that implement the Display Trait. Vectors do not implement the Display Trait, but they do implement the Debug Trait, which means that they have a debug representation that can be printed. The <code>:?</code> tells the formatter to print out the debug representation of the object.</p>
 
 		  <p>Another way to sort a Vector is to use the <code>sort_by</code> method. This method has the following function signature:</p>
 
-		  <code>pub fn sort_by&lt;F&gt;(&amp;mut self, mut compare: F)
+		  <pre>pub fn sort_by&lt;F&gt;(&amp;mut self, mut compare: F)
     where
-        F: FnMut(&amp;T, &amp;T) -> Ordering,</code>
+        F: FnMut(&amp;T, &amp;T) -> Ordering,</pre>
 
 		    <p>The <code>sort_by</code> function takes an argument called <code>compare</code>. <code>compare</code> is a function that takes references to two items that are of the same type and returns a variant of the Ordering Enum. The purpose of this function is to compare two items. The returned value will let us know if item A is less than (<code>Ordering::Less</code>), greater than (<code>Ordering::Greater</code>) or equal to (<code>Ordering::Equal</code>) item B.</p>
 
-		    <code>let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+		    <pre>let mut list = vec![3,2,5,1,6,7,8,0,9,4];
 list.sort_by(|a, b| a.cmp(b));
-println!("{:?}", list);</code>
+println!("{:?}", list);</pre>
 
 
 		    <p>In the above example, we pass the closure <code>|a, b| a.cmp(b)</code> to the <code>sort_by</code> method. This closure takes two parameters; <code>a</code> and <code>b</code>. Then, in the function body, use the <code>cmp</code> method to compare <code>a</code> to <code>b</code>. The <code>cmp</code> method returns a variant of the Ordering Enum.</p>
@@ -42,12 +42,12 @@ println!("{:?}", list);</code>
 
 				<p>The requirement of the Ord Trait when sorting can be seen in the function signature of Vec's <code>sort</code> method:</p>
 
-				<code>impl&lt;T&gt; [T] {
+				<pre>impl&lt;T&gt; [T] {
 ...
 pub fn sort(&amp;mut self)
     where
         T: Ord,
-...</code>
+...</pre>
 
 				<p>In the above snippet, we see that, in order to use the sort method, <code>T</code>, which represents the type of the elements of the list, has to implement the Ord Trait. This means that all of our previous examples that have resulted in a successfully sorted list, were able to do so because the type of the elements of those lists all implemented the Ord Trait.</p>
 

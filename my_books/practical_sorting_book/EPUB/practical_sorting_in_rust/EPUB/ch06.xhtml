@@ -20,7 +20,7 @@
 
 		  <p>This way of sorting where we look at one property and, if two elements have the same value for that property, we then compare the next property is the default sort implementation for Rust Tuples. This implementation start by using the left most elemement in the Tuple for comparison and then moves right as needed.</p>
 
-		  <code>	let mut test = vec![
+		  <pre>	let mut test = vec![
 		("a".to_string(), 1),
 		("ab".to_string(), 0),
 		("b".to_string(), 2),
@@ -32,11 +32,11 @@
     println!("{:?}", test);
 	
 	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
-		  </code>
+		  </pre>
 
 		  <p>In the above example, we use the default sort implementation to sort a list of tuple. We can replicate this sort with the <code>sort_by</code> method by passing the appropriate closure function.</p>
 
-		  <code>    let mut test = vec![
+		  <pre>    let mut test = vec![
 		("a".to_string(), 1),
 		("ab".to_string(), 0),
 		("b".to_string(), 2),
@@ -49,14 +49,14 @@
 	println!("{:?}", test);
 
 	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
-		  </code>
+		  </pre>
 
 		  <p>In our closure we used the <code>cmp</code> method to compare the first element of Tuples <code>a</code> and <code>b</code>. The <code>cmp</code> method returns an Ordering Enum. The Ordering Enum has a <code>then</code> method that allows us to chain Ordering Enums together when the initial <code>cmp</code> result is not Ordering::Equal.</p>
 
 
 		  <p>Though our tuple has multiple properties, we can still sort by a single property. For example, we could take a list of employees represented by the tuple <code>(&amp;str, u32)</code> where <code>&amp;str</code> is represents their name and <code>u32</code> represents their years with the company and sort them in descending order by how many years they have been with the company.</p>
 
-		  <code>let mut list = vec![
+		  <pre>let mut list = vec![
 	("Marcus".to_string(), 2),
 	("Jovanna".to_string(), 5),
 	("Carmen".to_string(), 2),
@@ -70,7 +70,7 @@ list.sort_by(|a, b| a.1.cmp(&amp;b.1).reverse());
 println!("{:?}", list);
 
 //output: [("Jovanna", 5), ("Marcus", 2), ("Carmen", 2), ("Christy", 2), ("Jerry", 1), ("Dillon", 0)]
-		  </code>
+		  </pre>
 
 		  <p>When looking at the output of our sort, you will notice that employees that have worked the same number of years are not presenting in alphabetical order. This is intentional because the function we are using to sort them ignores their name.</p>
 		  

@@ -12,13 +12,13 @@
 
 		  <p>So far, we have introduced the <code>sort</code> and <code>sort_by</code> methods, but there is another method called <code>sort_by_key</code> that we can use as well. Here is the function signature:</p>
 
-		  <code>impl&lt;T&gt; [T] {
+		  <pre>impl&lt;T&gt; [T] {
 ...
 pub fn sort_by_key&lt;K, F&gt;(&amp;mut self, mut f: F)
     where
         F: FnMut(&amp;T) -&gt; K,
         K: Ord,
-...</code>
+...</pre>
 
 		  <p><code>sort_by_key</code> takes in a function <code>f</code> that takes an element from the list and returns a value of type <code>K</code> where type <code>K</code> implements the Ord Trait. Comparing this method to <code>sort</code> and <code>sort_by</code>, we see that:</p>
 		      <ol>
@@ -31,12 +31,12 @@ pub fn sort_by_key&lt;K, F&gt;(&amp;mut self, mut f: F)
 
 		  <p>For example, if you wanted to sort a vector of <code>[-10, -7, -3, 0, 3, 7, 10]</code> by the values returned after applying the function <code>x mod 7</code>, you can do the following:</p>
 
-		  <code>fn main(){
+		  <pre>fn main(){
 	let mut list: Vec&lt;i32&gt; = vec![-10, -7, -3, 0, 3, 7, 10];
 	list.sort_by_key(|x| x.rem_euclid(7));
 	
 	println!("{:?}", list) <!--Add a comment containing the list -->
-}</code>
+}</pre>
 		      
 
 		    <p>In this example, we used the <code>rem_euclid</code> to compute the value of <code>x mod 7</code> where <code>x</code> is an element of the list. <code>x mod 7</code> gives us a list of <code>[4, 0, 4, 0, 3, 0, 3]</code>, which is then sorted, and then the returned values are replaced with their original inputs.</p>
@@ -53,7 +53,7 @@ pub fn sort_by_key&lt;K, F&gt;(&amp;mut self, mut f: F)
 			    <li><code>[also_one, one, also_two, two]</code></li>
 			  </ul>
 
-			  <code>let one = 1;
+			  <pre>let one = 1;
 let also_one = 1;
 let two = 2;
 let also_two = 2;
@@ -61,7 +61,7 @@ let also_two = 2;
 let list_1 = vec![one, also_one, two, also_two];
 let list_2 = vec![also_one, one, also_two, two];
 
-println!("{:?} == {:?} = {}", list_1, list_2, list_1 == list_2);</code>
+println!("{:?} == {:?} = {}", list_1, list_2, list_1 == list_2);</pre>
 
 			  <p>When comparing two variations of a correctly sorted list, we see that they are equal. That said, having multiple possible arrangements is not always ideal. For that reason, we have unstable sort and stable sort.</p>
 

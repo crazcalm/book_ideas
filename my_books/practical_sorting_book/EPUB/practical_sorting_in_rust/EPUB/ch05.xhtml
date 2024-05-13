@@ -12,23 +12,23 @@
 
 		  <p>Sorting is typcally done for two reasons: comparing and search. When comparing lists of elements, order matters because equality means that every element at each index is equal. For example, <code>[1, 2, 3]</code> is not equal to <code>[2, 3, 1]</code> even though they contain the same elements.</p>
 
-		  <code>let a = vec![1,2,3,4];
+		  <pre>let a = vec![1,2,3,4];
 let b = vec![2,3,1,4];
 
 println("{:?} == {:?} => {}", a, b, a == b);
-</code>
+</pre>
 
 
 		  <p>However, if we sort both lists prior to checking for equality, we ensure that the elements of both lists have ben ordered in the manner. This gives us the expectation that, as long as both lists have the same elements, the sorted order of the list should be equal as well.</p>
 
-		  <code>let mut a = vec![1,2,3,4];
+		  <pre>let mut a = vec![1,2,3,4];
 let mut b = vec![2,3,1,4];
 
 a.sort()
 b.sort()
 
 println("{:?} == {:?} => {}", a, b, a == b);
-</code>
+</pre>
 
 		  <p>When we talk about search we usually are talking about searching for an element or a group of elements from a collection of elements via a specific criteria. For example, given the list <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code>, asking if the number 5 is in the list is  single element search and asking for all the values less than 5 is an example of searching for a group of elements via a specific criteria.</p>
 

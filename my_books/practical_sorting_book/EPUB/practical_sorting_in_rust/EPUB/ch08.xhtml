@@ -12,20 +12,20 @@
 
 		  <p>The Ord Trait, which is required for sorting, is a Super Trait. A Super Trait is a regular Trait with the additional requirement of listing other traits that must implement for this Trait to work. Here is a snippet of the Ord Trait definition:</p>
 
-		  <code>pub trait Ord: Eq + PartialOrd {
+		  <pre>pub trait Ord: Eq + PartialOrd {
     // Required method
     fn cmp(&amp;self, other: &amp;Self) -> Ordering;
 	...
 }
-		  </code>
+		  </pre>
 
 		  <p>The <code>Eq + PartialOrd</code> part means that the <code>Eq</code> and the <code>PartialOrd</code> Traits are required for the implementation of the Ord Trait. Please note the when a Super Trait lists required Traits, those Traits can also be Super Traits. For example, <code>Eq</code> is also a super trait. The <code>Eq</code> Trait requires that the <code>PartialEq</code> Trait be implemented.</p>
 
-		  <code>pub trait Eq: PartialEq { }</code>
+		  <pre>pub trait Eq: PartialEq { }</pre>
 
 		  <p>This means that implementing the Ord Trait means that we also have to implement the Eq Trait, the ParialEq Trait and the PartialOrd Trait. Lucky for us, we are allowed to generate default implementations for all of these Traits using derive.</p>
 
-		  <code>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+		  <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
 struct Employee {
     name: String,
     years_of_service: u32
@@ -45,13 +45,13 @@ fn main() {
     
 	println!("{:#?}", list_of_employees);
 }
-		  </code>
+		  </pre>
 
 		  <p>In the above example, we derived all of the necessary Traits needed for sorting and then we were able to sort the list of employee struct instances. Given that these are derived implementations of Traits, we know that, when sorting, our comparisons are dictated by the order of the fields. Since the Emploee Struct defined the name field first, that field is the first field compared during the sorting process. As a result, our sorted list is by name and then by years of service.</p>
 
 		  <p>By switching the order of the Employee Structs fields, we can change the sort so that the list will be sorted by years of service and then by name.</p>
 
-		  <code>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+		  <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
 struct Employee {
     years_of_service: u32,
 	name: String,
@@ -71,7 +71,7 @@ fn main() {
     
 	println!("{:#?}", list_of_employees);
 }
-		  </code>
+		  </pre>
 
 		  <p>Now that our Employee Struct defined the years of service field before the name field, our list is sorted by years of service and then by name.</p>
 
