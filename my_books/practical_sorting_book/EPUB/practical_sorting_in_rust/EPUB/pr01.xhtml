@@ -10,23 +10,17 @@
 		<section class="preface" epub:type="preface" role="doc-preface" aria-labelledby="preface_h" id="_preface">
 		  <h2 id="preface_h" class="title">Preface</h2>
 
-		  <p>This book is about sorting. I acknowledge that "sorting" means many things to many people. As a Software Engineer, I would define sorting as the acto of placing a collection of items in order.</p>
+		  <p>This book is about sorting. I acknowledge that "sorting" means many things to many people. As a Software Engineer, I would define sorting as the act of placing a collection of items in order. For example, if I take the list of <code>[4, 3, 5, 2, 1]</code>, the sorted order will be <code>[1, 2, 3, 4, 5]</code>.</p>
 
-		  <p>For example, if I take the list of <code>[4, 3, 5, 2, 1]</code>, the sorted order will be <code>[1, 2, 3, 4, 5]</code>.</p>
+		  <p>If you agree with this definition, I agree with you. If you disagree with this definition, I also agree with you. My issue with this definition is that it is both correct and misleading. It implies that "sorting" can only result in one definitive order, but what is "order"?</p>
 
-		  <p>If you agree with this definition, I agree with you. If you disagree with this definition, I also agree with you.</p>
+		  <p>The American Heritage dictionary defines order as <q>a condition of logical or comprehensible arrangement among the separate elements of a group</q>.</p>
 
-		  <p>My issue with this definition is that it is both correct and misleading. It implies that "sorting" can only result in one definitive order, but what is "order"?</p>
+		  <p>This means that as long as the final arrangment of elements is logical or comprehensible, they are ordered. With that in mind, lists like <code>[1, 2, 3, 4, 5]</code> and <code>[5, 4, 3, 2, 1]</code> are sorted because both ascending and descending order of numbers are logical arrangments. The same thing can be said for the list <code>[1, 3, 5, 2, 4]</code>. It's sorted because the numbers are placed in ascending order where the odd numbers are placed in front of the even numbers, which is a logical arrangement.</p>
 
-		  <p>The American Heritage dictionary defines order as <q>a condition of logical or comprehensible arrangement among the separate elements of a group</q>. This means that as long as the final arrangment of elements is logical or comprehensible, they are ordered.</p>
+		  <p>When it comes to the word "order", the important part is the logical arrangement. For example, the list <code>[3, 1, 2, 4, 5]</code> could be unordered, or it could be sorted in ascending order where 3's are given priority and placed at the front of the list. The distinguishing feature between unordered and ordered is resproducibility. If you generate the list <code>[3, 1, 2, 4, 5]</code> on your first attempt, but re-running the code tends to generate different lists, then it is safe to say that this is not a logical arrangement and that your list is not sorted.</p>
 
-		  <!--Need to continue -->
-
-		  <p>With that in mind, lists like <code>[1, 2, 3, 4, 5]</code> and <code>[5, 4, 3, 2, 1]</code> are sorted because both ascending and descending order of numbers are logical arrangments. The same thing can be said for the list <code>[1, 3, 5, 2, 4]</code>. It's sorted because the numbers are placed in ascending order where the odd numbers are placed in front of the even numbers, which is a logical arrangement.</p>
-
-		  <p>When it comes to the word "order", the important part is the logical arrangement. For example, the list <code>[3, 1, 2, 4, 5]</code> could be unordered, or it could be sorted in ascending order where 3's are given priority and placed at the front of the list.</p>
-
-		  <p>Throughout this book we will be examining sorting with respect to ordering. We will examine the basics of sorting in Rust, we will learn how to manipulate our sort to achieve a particular order, we will learn how to implement sorting for custom structs, and we will learn how to exend our sorting capabilities at runtime to allow for dynamic sorting.</p>
+		  <p>Throughout this book we will be examining sorting with respect to ordering. We will perform this examination in Rust. That said, the learnings and general takeaways discovered should be easily transferable to the language of your choice. WIth respect to Rust, we will learn how to leverage sorting to achieve a cerain logical arrangement or order, we will learn how to implement sorting for custom structs, and we will learn how to exend our sorting capabilities at runtime to allow for dynamic sorting.</p>
 		</section>
 	</body>
 </html>
