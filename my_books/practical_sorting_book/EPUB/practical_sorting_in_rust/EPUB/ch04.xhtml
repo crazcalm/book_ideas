@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
-	lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
 	<head>
 		<title>Chapter 4. My Sorting Options</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
@@ -10,9 +9,11 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 4. My Sorting Options</h2>
 
-		  <p>So far, we have introduced the <code>sort</code> and <code>sort_by</code> methods, but there is another method called <code>sort_by_key</code> that we can use as well. Here is the function signature:</p>
+		  <p>We have introduced the <code>sort</code> and <code>sort_by</code> methods, but there is another method called <code>sort_by_key</code> that we can use as well. Here is the function signature:</p>
 
-		  <pre>impl&lt;T&gt; [T] {
+		  <div class="functionSignature">
+		    <h5>Function Signature Snippet</h5>
+		    <pre>impl&lt;T&gt; [T] {
 ...
 pub fn sort_by_key&lt;K, F&gt;(&amp;mut self, mut f: F)
     where
@@ -20,40 +21,48 @@ pub fn sort_by_key&lt;K, F&gt;(&amp;mut self, mut f: F)
         K: Ord,
 ...</pre>
 
-		  <p><code>sort_by_key</code> takes in a function <code>f</code> that takes an element from the list and returns a value of type <code>K</code> where type <code>K</code> implements the Ord Trait. Comparing this method to <code>sort</code> and <code>sort_by</code>, we see that:</p>
-		      <ol>
-			<li>The elements of the list do not have to implement the Ord Trait (This is a requirement for <code>sort</code>)</li>
-			<li>The function passed in only takes a single parameter (The function passed into <code>sort_by</code> takes 2 parameters)</li>
-			<li>The return value of the function must implement the Ord Trait (The return value of the <code>sort_by</code> method is a variant of the Ordering Enum)</li>
-		      </ol>
+		  </div>
+		  <p><code>sort_by_key</code> method takes in a function <code>f</code> that takes an element from the list and returns a value of type <code>K</code> where type <code>K</code> implements the Ord Trait. Comparing this method to <code>sort</code> and <code>sort_by</code>, we see that:</p>
+		      <ul>
+			<li>The elements of the list do not have to implement the Ord Trait (This is a requirement for <code>sort</code>).</li>
+			<li>The function passed in only takes a single parameter (The function passed into <code>sort_by</code> takes 2 parameters).</li>
+			<li>The return value of the function must implement the Ord Trait (The return value of the <code>sort_by</code> method is a variant of the Ordering Enum).</li>
+		      </ul>
 
-		  <p>Point 2 tells us that the <code>sort_by_key</code> method is not used to compare elements in the list. Knowing that being able to compare elements in a list is a requirement for sorting, points 1 and 3 tell us that <code>sort_by_key</code> will return values that will later be used to sort the list.</p>
+		  <p>Point 2 tells us that the <code>sort_by_key</code> method is not used to compare elements in the list. Knowing that being able to compare elements in a list is a requirement for sorting, points 1 and 3 tell us that <code>sort_by_key</code> will return values that will later be used to sort the list. For example, if you wanted to sort the vector of <code>[-10, -7, -3, 0, 3, 7, 10]</code> by the values returned after applying the function <code>x mod 7</code>, you can do that with the <code>sort_by_key</code> method.</p>
 
-		  <p>For example, if you wanted to sort a vector of <code>[-10, -7, -3, 0, 3, 7, 10]</code> by the values returned after applying the function <code>x mod 7</code>, you can do the following:</p>
-
-		  <pre>fn main(){
-	let mut list: Vec&lt;i32&gt; = vec![-10, -7, -3, 0, 3, 7, 10];
-	list.sort_by_key(|x| x.rem_euclid(7));
+		  <div class="example">
+		    <h5>Example 4.1</h5>
+		    <pre>fn main(){
+    let mut list: Vec&lt;i32&gt; = vec![-10, -7, -3, 0, 3, 7, 10];
+    list.sort_by_key(|x| x.rem_euclid(7));
 	
-	println!("{:?}", list) <!--Add a comment containing the list -->
+    println!("{:?}", list);
 }</pre>
-		      
+		    <h5>Output 4.1</h5>
+		    <pre>[-7, 0, 7, 3, 10, -10, -3]</pre>
+		  </div>
 
 		    <p>In this example, we used the <code>rem_euclid</code> to compute the value of <code>x mod 7</code> where <code>x</code> is an element of the list. <code>x mod 7</code> gives us a list of <code>[4, 0, 4, 0, 3, 0, 3]</code>, which is then sorted, and then the returned values are replaced with their original inputs.</p>
 
 			<section class="sect1">
 			  <h2 class="title" id="_unstable_sort">Unstable Sort</h2>
 
-			  <p>One aspect of sorting that we have not questioned is what should happen when multiple elements in a list are considered equal. For example, the list <code>[one, two, also_one, also_two]</code> where <code>one</code> and <code>also_one</code> equal <code>1</code> and <code>two</code> and <code>also_two</code> equal <code>2</code>. If we were to sort this list, then, technically speaking, there are for valid combinations:</p>
+			  <p>One aspect of sorting that we have not questioned is what should happen when multiple elements in a list are considered equal. For example, consider the list <code>[one, two, also_one, also_two]</code> where <code>one</code> and <code>also_one</code> equal <code>1</code> and <code>two</code> and <code>also_two</code> equal <code>2</code>. If we were to sort this list, then, technically speaking, there are 4 valid combinations:</p>
 
-			  <ul>
-			    <li><code>[one, also_one, two, also_two]</code></li>
-			    <li><code>[one, also_one, also_two, two]</code></li>
-			    <li><code>[also_one, one, two, also_two]</code></li>
-			    <li><code>[also_one, one, also_two, two]</code></li>
-			  </ul>
+			  <div class="example">
+			    <h5>Valid Combinations</h5>
+			    <ul>
+			      <li><code>[one, also_one, two, also_two]</code></li>
+			      <li><code>[one, also_one, also_two, two]</code></li>
+			      <li><code>[also_one, one, two, also_two]</code></li>
+			      <li><code>[also_one, one, also_two, two]</code></li>
+			    </ul>
+			  </div>
 
-			  <pre>let one = 1;
+			  <div class="example">
+			    <h5>Example 4.2</h5>
+			    <pre>let one = 1;
 let also_one = 1;
 let two = 2;
 let also_two = 2;
@@ -63,11 +72,14 @@ let list_2 = vec![also_one, one, also_two, two];
 
 println!("{:?} == {:?} = {}", list_1, list_2, list_1 == list_2);</pre>
 
-			  <p>When comparing two variations of a correctly sorted list, we see that they are equal. That said, having multiple possible arrangements is not always ideal. For that reason, we have unstable sort and stable sort.</p>
+			    <h5>Output 4.2</h5>
+			    <pre>[1, 1, 2, 2] == [1, 1, 2, 2] = true</pre>
+			  </div>
+			  <p>When comparing two variations of our sorted list, we see that they are equal. That said, having multiple possible arrangements is not always ideal. For that reason, we have two types of sorts; unstable sort and stable sort.</p>
 
-			  <p>Unstable sort is sorting where there is no definitive order given to elements that are considered equal. This gives rise to the situation where the list <code>[one, two, also_one, also_two]</code> has 4 valid arrangements that can result from being sorted.</p>
+			  <p>Unstable sort is sorting where there is no definitive order given to elements that are considered equal. In theory, this gives rise to the situation where the list <code>[one, two, also_one, also_two]</code> has 4 valid arrangements that can result from being sorted.</p>
 
-			  <p>Stable sort is sorting with the added requirement that ll elements that are equal will stay true to their relative ordering in the original list. This means that the list <code>[one, two, also_one, also_two]</code> only has one valid arrangement and that is <code>[one, also,_one, two, also_two]</code> because <code>one</code> was originally in front of <code>also_one</code> and <code>two</code> was originally in front of <code>also_two</code>.</p>
+			  <p>Stable sort is sorting with the additional requirement that all elements that are equal will stay true to the relative ordering of the original list. This means that the list <code>[one, two, also_one, also_two]</code> only has one valid arrangement and that is <code>[one, also_one, two, also_two]</code> because <code>one</code> was originally in front of <code>also_one</code> and <code>two</code> was originally in front of <code>also_two</code>.</p>
 
 			  <p>The sorting methods that we have looked at so far have all been stable sorts, but must of them do have unstable counterparts.</p>
 
@@ -77,9 +89,8 @@ println!("{:?} == {:?} = {}", list_1, list_2, list_1 == list_2);</pre>
 			    <li>sort_by_key  -->   sort_unstable_by_key</li>
 			  </ul>
 
-			  <p>The benefits to using an unstable sorting method is that they tend to be faster than stable sorting. However, if you need to gaurentee that there will only ever be one valid sorted arrangement, then you should us a stable sort.</p>
+			  <p>The benefits to using an unstable sorting method is that they tend to be faster than their stable sort counterparts. However, if you need to guarantee that there will only ever be one valid sorted arrangement, then you should us a stable sort.</p>
 
-			  
 			</section>
 		</section>
 	</body>
