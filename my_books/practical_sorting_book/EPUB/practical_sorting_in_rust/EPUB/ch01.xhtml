@@ -9,32 +9,74 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c1_h" id="introduction">
 		  <h2 id="c1_h" class="title">Chapter 1: Apples to Apples</h2>
 
-		  <p>Sorting is the act of arranging items into a logical orger. That said, in order to know which item goes in front of the other item, they much be compared. This means that the first step in sorting is making sure the items you want to sort can be compared</p>
+		  <p>Sorting is the act of arranging items into a logical orger. That said, in order to know which item goes in front of the other, they much be compared. This means that the first step in sorting is making sure the items you want to sort can be compared.</p>
 
-		  <p>In Rust, we can only compare items of the same type. For example, consider the comparision <code>1 > 'a'</code>. 1 is a number and 'a' is a character. They are not the same type. As such, they cannot be compared.</p>
+		  <p>In Rust, we can only compare items of the same type. For example, consider the comparision of <code>1 > 'a'</code>. 1 is a number and 'a' is a character. They are not the same type, which means that they cannot be compared.</p>
 
-		  <code>println!("{} > {} = {}", 1, 'a', 1 > 'a');</code>
+		  <div class="example">
+		    <h5>Example 1.1</h5>
 
-		  <p>1 and 2 are both numbers, but Rust has different types of numbers. If 1 is of type u8 and 2 is of type i32, then we cannot compare them.</p>
+		    <pre>println!("{} > {} = {}", 1, 'a', 1 > 'a');</pre>
+		    <h5>Output 1.1</h5>
+		    <pre>error[E0308]: mismatched types
+ --> examples/example1-1.rs:2:42
+  |
+2 |     println!("{} &gt; {} = {}", 1, 'a', 1 &gt; 'a');
+  |                                          ^^^ expected integer, found `char`
 
-		  <pre>let one: u8 = 1;
+error[E0277]: can't compare `{integer}` with `char`
+ --> examples/example1-1.rs:2:40
+  |
+2 |     println!("{} &gt; {} = {}", 1, 'a', 1 &gt; 'a');
+  |                                        ^ no implementation for `{integer} &lt; char` and `{integer} &gt; char`
+</pre>
+		  </div>
+
+		  <p>1 and 2 are both numbers, but Rust has different types of numbers. So, if 1 is of type u8 and 2 is of type i32, then we still cannot compare them.</p>
+
+		  <div class="example">
+		    <h5>Example 1.2</h5>
+		    <pre>let one: u8 = 1;
 let two: i32 = 2;
 
 println!("{} > {} = {}", one, two, one > two);</pre>
-
+		    <h5>Output 1.2</h5>
+		    <pre>error[E0308]: mismatched types
+ --> examples/example1-2.rs:5:46
+  |
+5 |     println!("{} &gt; {} = {}", one, two, one &gt; two);
+  |                                        ---   ^^^ expected `u8`, found `i32`
+  |                                        |
+  |                                        expected because this is `u8`
+  |
+help: you can convert `one` from `u8` to `i32`, matching the type of `two`
+  |
+5 |     println!("{} &gt; {} = {}", one, two, i32::from(one) &gt; two);
+  |                                        ++++++++++   +
+</pre>
+		  </div>
 		  <p>It is only when 1 and 2 are of the same type that we can compare them.</p>
 
-		  <pre>let one: u8 = 1;
+		  <div class="example">
+		    <h5>Example 1.3</h5>
+		    <pre>let one: u8 = 1;
 let two: u8 = 2;
-println!("{} > {} = {}", one, two, one > two);</pre>
+println!("{} &gt; {} = {}", one, two, one &gt; two);</pre>
+		    <h5>Output 1.3</h5>
+		    <pre>1 &gt; 2 = false</pre>
+		  </div>
 
+		  <p>For simple examples, we do not have to specify the type because Rust has type inference, which means, in the absense of an explicit type, the compilier will make an educated guess as to which type to use. Coming back the our comparison of <code>1 > 2</code>, the compilier will note that these numbers are being compared and set them to be the same type</p>
 
-		  <p>For simple examples, we do not have to specify the type because Rust has type inference, which means, in the absense of an explicit type, the compilier will make an educated guess at which type to use. Coming back the our comparison of <code>1 > 2</code>, the compilier will note that these numbers are being compared and set them to be the same type</p>
-
-		  <pre>let one = 1;
+		  <div class="example">
+		    <h5>Example 1.4</h5>
+		    <pre>let one = 1;
 let two = 2;
 
-		    println!("{} > {} = {}", one, two, one > two);</pre>
+println!("{} &gt; {} = {}", one, two, one &gt; two);</pre>
+		    <h5>Output 1.4</h5>
+		    <pre>1 &gt; 2 = false</pre>
+		  </div>
 		      
 		</section>
 	</body>
