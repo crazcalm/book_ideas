@@ -9,28 +9,41 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c2_h" id="building_a_better_epub">
 		  <h2 id="c2_h" class="title">Chapter 2. Line Them Up</h2>
 
-		  <p>Once you know that your items are comparable, you can then put them into a Vector and use the Vector's <code>sort</code> method to order them. Given that the sort method can re-arrange the items within the Vector, the Vector must be mutable.</p>
+		  <p>Once you know that your items are comparable, you can then put them into a Vector and use the Vector's <code>sort</code> method to order them. The sort method will re-arrange the items within the Vector. This implies that the Vector will be modified, which means that the Vector must be mutable.</p>
 
-		  <pre>
-let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+		  <div class="example">
+		    <h5>Example 2.1</h5>
+		    <pre>let mut list = vec![3,2,5,1,6,7,8,0,9,4];
 list.sort();
+		      
 println!("{:?}", list);</pre>
+		    <h5>Output 2.1 </h5>
+		    <pre>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</pre>
+		  </div>
 
 
-		  <p>In the above example, we use <code>{:?}</code> to print out the list instead of <code>{}</code>. This is because <code>{}</code> is used for objects that implement the Display Trait. Vectors do not implement the Display Trait, but they do implement the Debug Trait, which means that they have a debug representation that can be printed. The <code>:?</code> tells the formatter to print out the debug representation of the object.</p>
+		  <p>In the above example, we use <code>{:?}</code> instead of <code>{}</code> to print out the list because <code>{}</code> is used for objects that implement the Display Trait. Vectors do not implement the Display Trait, but they do implement the Debug Trait, which means that their debug representation that can be printed. The <code>:?</code> tells the formatter to print out the debug representation of the object.</p>
 
 		  <p>Another way to sort a Vector is to use the <code>sort_by</code> method. This method has the following function signature:</p>
 
-		  <pre>pub fn sort_by&lt;F&gt;(&amp;mut self, mut compare: F)
+		  <div class="functionSignature">
+		    <h5>Function Signature Snippet</h5>
+		    <pre>pub fn sort_by&lt;F&gt;(&amp;mut self, mut compare: F)
     where
         F: FnMut(&amp;T, &amp;T) -> Ordering,</pre>
+		  </div>
+		  
+		    <p>The <code>sort_by</code> function takes an argument called <code>compare</code> that is, itself, a function. The <code>compare</code> function accepts references of two items that are of the same type and returns a variant of the Ordering Enum. The purpose of this function is to compare two items. The returned value (Ordering Enum) will let us know if item A is less than (<code>Ordering::Less</code>), greater than (<code>Ordering::Greater</code>) or equal to (<code>Ordering::Equal</code>) item B.</p>
 
-		    <p>The <code>sort_by</code> function takes an argument called <code>compare</code>. <code>compare</code> is a function that takes references to two items that are of the same type and returns a variant of the Ordering Enum. The purpose of this function is to compare two items. The returned value will let us know if item A is less than (<code>Ordering::Less</code>), greater than (<code>Ordering::Greater</code>) or equal to (<code>Ordering::Equal</code>) item B.</p>
-
-		    <pre>let mut list = vec![3,2,5,1,6,7,8,0,9,4];
+		    <div class="example">
+		      <h5>Example 2.2</h5>
+		      <pre>let mut list = vec![3,2,5,1,6,7,8,0,9,4];
 list.sort_by(|a, b| a.cmp(b));
+			
 println!("{:?}", list);</pre>
-
+		      <h5>Output 2.2</h5>
+		      <pre>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</pre>
+		    </div>
 
 		    <p>In the above example, we pass the closure <code>|a, b| a.cmp(b)</code> to the <code>sort_by</code> method. This closure takes two parameters; <code>a</code> and <code>b</code>. Then, in the function body, use the <code>cmp</code> method to compare <code>a</code> to <code>b</code>. The <code>cmp</code> method returns a variant of the Ordering Enum.</p>
 		    
@@ -38,20 +51,19 @@ println!("{:?}", list);</pre>
 			<section class="sect1">
 				<h2 class="title" id="_a_solid_foundation_structure_and_semantics">Where did the <code>cmp</code> method come from?</h2>
 
-				<p>In order to sort a list, you must be able to compare the items of that list, but how do you know if the items are comparable? I've previously mentioned that the items must have the same time, but that is only part of the answer. The full answer is that the items have to be of the same type and that type must implement the Ord Trait, which is a trait that gaurentees that two items of the same type are comparable. The existence of the <code>cmp</code> method is a result of implementing the Ord Trait.</p>
+				<p>In order to sort a list, you must be able to compare the items of that list, but how do you know if the items are comparable? I've previously mentioned that the items must have the same type, but that is only part of the answer. The full answer is that the items have to be of the same type and that type must implement the Ord Trait, which is a trait that gaurentees that items of the same type are comparable. The existence of the <code>cmp</code> method is a result of implementing the Ord Trait. An example of the Ord Trait being required for functions that compare items when sorting can be seen in the function signature of Vec's <code>sort</code> method:</p>
 
-				<p>The requirement of the Ord Trait when sorting can be seen in the function signature of Vec's <code>sort</code> method:</p>
-
-				<pre>impl&lt;T&gt; [T] {
+				<div class="functionSignature">
+				  <h5>Function Signature Snippet</h5>
+				  <pre>impl&lt;T&gt; [T] {
 ...
 pub fn sort(&amp;mut self)
     where
         T: Ord,
 ...</pre>
-
-				<p>In the above snippet, we see that, in order to use the sort method, <code>T</code>, which represents the type of the elements of the list, has to implement the Ord Trait. This means that all of our previous examples that have resulted in a successfully sorted list, were able to do so because the type of the elements of those lists all implemented the Ord Trait.</p>
-
-				
+				</div>
+				<p>From the snippet of Vector's sort method, we see that, in order to use the sort method, <code>T</code>, which represents the type of the elements of the list, has to implement the Ord Trait. This means that all of our previous examples that have successfully used the <code>sort</code> method were able to do so because all of the elements had the same type and that type implemented the Ord Trait.</p>
+			
 			</section>
 		</section>
 	</body>
