@@ -3,43 +3,52 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 4: Common Uses For Sorting</title>
+		<title>Chapter 5: Common Uses For Sorting</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
-		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-		  <h2 id="c4_h" class="title">Chapter 4: Common Uses For Sorting</h2>
+		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c5_h" id="conclusion">
+		  <h2 id="c5_h" class="title">Chapter 5: Common Uses For Sorting</h2>
 
-		  <p>Sorting is typcally done for two reasons: comparing and search. When comparing lists of elements, order matters because equality means that every element at each index is equal. For example, <code>[1, 2, 3]</code> is not equal to <code>[2, 3, 1]</code> even though they contain the same elements.</p>
+		  <p>Sorting is typcally done for two reasons: comparing and search. When comparing lists of elements, order matters because equality means that every element at each index is equal. For example, <code>[1, 2, 3]</code> is not equal to <code>[2, 3, 1]</code> even though they contain the same elements because the values at each index are not equal.</p>
 
-		  <pre>let a = vec![1,2,3,4];
-let b = vec![2,3,1,4];
+		  <div class="example">
+		    <h5>Example 5.1</h5>
+		    <pre>let a = vec![1, 2, 3, 4];
+let b = vec![2, 3, 1, 4];
 
-println("{:?} == {:?} => {}", a, b, a == b);
-</pre>
+println!("{:?} == {:?} => {}", a, b, a == b);</pre>
 
+		    <h5>Output 5.1</h5>
+		    <pre>[1, 2, 3, 4] == [2, 3, 1, 4] => false</pre>
+		  </div>
 
-		  <p>However, if we sort both lists prior to checking for equality, we ensure that the elements of both lists have ben ordered in the manner. This gives us the expectation that, as long as both lists have the same elements, the sorted order of the list should be equal as well.</p>
+		  <p>However, if we sort both lists prior to checking for equality, we ensure that the elements of both lists have been ordered in the same manner. This gives us the expectation that, as long as both lists have the same elements, the sorted order of the list should be equal as well.</p>
 
-		  <pre>let mut a = vec![1,2,3,4];
-let mut b = vec![2,3,1,4];
+		  <div class="example">
+		    <h5>Example 5.2</h5>
+		    <pre>let mut a = vec![1, 2, 3, 4];
+let mut b = vec![2, 3, 1, 4];
 
-a.sort()
-b.sort()
+a.sort();
+b.sort();
 
-println("{:?} == {:?} => {}", a, b, a == b);
-</pre>
+println!("{:?} == {:?} => {}", a, b, a == b);</pre>
 
-		  <p>When we talk about search we usually are talking about searching for an element or a group of elements from a collection of elements via a specific criteria. For example, given the list <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code>, asking if the number 5 is in the list is  single element search and asking for all the values less than 5 is an example of searching for a group of elements via a specific criteria.</p>
-
-		  <p>Sorting makes searching easier because, if your collection of elements are sorted, then you know that you can leverage the rules of the logical arrangement to reach your answer faster. For example, sorting <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code> in ascending order gives us <code>[0, 1, 2, 3, 4, 6, 7, 8, 9]</code>. If we want to check if the number 5 is in the list, we now have a few ways we can go about it.</p>
-
-		  <p>A method that would work on both the sorted and unsorted version of the list is the brute force method where we look at every element of the list, starting from the left side and going right, and check if they are equal to 5. For an unsorted list, this makes sense because there is always the possibility that the next element in the list is 5. For a sorted list, this seems silly because you end up doing a number of unnecessary checks. For example, if you start from the left most element, which is 0, and move right, you will eventually reach the number 6. Sorting in acending order means that every number to the right of 6 are equal to or great than 6, which means that 5 cannot be to the right of 6. Stopping our search here would save us 3 comparisions <code>(7, 8, 9)</code>.</p>
-
-		  <p>If we stared from the right most element, which is the number 9, and moved left, we would eventually reach the number 4. Ascending order also mean that all the elements left of 4 are equal to or less than 4, which means that 5 cannot be to the left of 4. Stpping our search here would save us 4 comparisons <code>(0, 1, 2, 3)</code>.</p>
-
-		    <p>Given how much the rules of ascending order tells us about the list, there is no harm in starting our search from an arbitrary location. For example, if we started our search in th middle of the list, which is at number 4, we know that if the number 5 is in the list, then it would be to the right of number 4, This means that our search algorithm now knows what direction to continue its search in. If your search algorithm decided to check the element to the right of 4, it will see the number 6 and know that 5 cannot be in this list. In this scenario, our algorithm just saved us 7 comparisons all because we understood how the list was ordered.</p>
+		    <h5>Output 5.2</h5>
+		    <pre>[1, 2, 3, 4] == [1, 2, 3, 4] => true</pre>
+		  </div>
 		  
+		  <p>When we talk about search, we are usually are talking about searching for an element from a collection of elements via a specific criteria. For example, given the list <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code>, asking if the number 5 is in the list is single element search. </p>
+
+		  <p>Sorting makes searching easier because, if your collection of elements are sorted, then you know that you can leverage the rules of the logical arrangement to reach your answer faster. For example, sorting <code>[2, 9, 3, 1, 8, 7, 6, 9, 0]</code> in ascending order gives us <code>[0, 1, 2, 3, 4, 6, 7, 8, 9]</code>. If we want to check if the number 5 is in the list, we now have a few ways we can go about it. A method that would work on both the sorted and unsorted version of the list is the brute force method where we look at every element of the list, starting from the left side and going right, and check if they are equal to 5. For an unsorted list, this makes sense because there is always the possibility that the next element in the list is 5. For a sorted list, this seems silly because you end up doing a number of unnecessary checks. For example, if you start from the left most element, which is 0, and move right, you will eventually reach the number 6. Sorting in acending order means that every number to the right of 6 are equal to or greater than 6, which means that 5 cannot be to the right of 6. Stopping our search here would save us 3 comparisions <code>(7, 8, 9)</code>.</p>
+
+		  <p>If we stared from the right most element, which is the number 9, and moved left, we would eventually reach the number 4. Ascending order also mean that all the elements to the left of 4 are equal to or less than 4, which means that 5 cannot be to the left of 4. Stopping our search here would save us 4 comparisons <code>(0, 1, 2, 3)</code>.</p>
+
+		  <p>Given how much the rules of ascending order tells us about the list, there is no harm in starting our search from an arbitrary location. For example, if we started our search in th middle of the list, which is at number 4, we know that if the number 5 is in the list, then it would be to the right of number 4, This means that our search algorithm now knows what direction to continue its search in. If we were to repeat these steps on the sublist that is <code>[6, 7, 8, 9]</code>, we see that 7 is the new middle element. We know that 7 is greater than 5 and that everything to the right of 7 is also greater than 5, so we create a new sublist that is <code>[6]</code>. There is only one element in this sublist and it is the number 6, which is also greater than 5. At this point, after 3 comparisons, we can conclude that 5 is not in the list. This technique is called binary search because, for each search attempt, it allows us to create a new sublist that consists of half the number of elements of the previous sublist to search through. Though binary search it a powerful searching technique, I want to point out that we were only able to use it because we understood how the list was ordered.</p>
+
+		  <p>Sorting elements in ascending order makes sense because it is a widely understood logical arrangment of elements, but, depending on your searching criteria and history, it may not be the best ordering for you. For example, if you have a list of elements and you know that you tend to search for a certain subset of these elements more often than others, why not sort your list into a different logical arrangment that makes finding the elements that you commonly search for easier? If you tend to search for the number 5 in a list, why not prioritize 5 and put it at the beginning of the sorted list? Or, if you know that you search for odd numbers more than even numbers, why not sort your list so that all the odd numbers are before all the even numbers and both groups of numbers are in ascending order? With these logical arrangments, you will have an easier time finding the elements you tend to search. All in all, I want us remember that we sort elements into a logical arrangements of elements to make the process of achieving our goal easier and that we have control over which logical arrangement we choose to use.</p>
+
 		</section>
 	</body>
 </html>
