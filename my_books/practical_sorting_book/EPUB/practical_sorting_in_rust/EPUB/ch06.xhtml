@@ -10,69 +10,74 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 6: Multi-dimensional Sorting</h2>
 
-		  <p>Multi-dimensional sorting is the idea of sorting based on more than one property. A data structure that allows us to easily create items with more than one property are tuple.</p>
+		  <p>Multi-dimensional sorting is the idea of sorting based on more than one property. to illustrate this, we will be using Tuples, which is a data structure that allows us to create items with more than one property. A Tuple is a finite heterogeneous sequence. Finite meaning that there are a fix number of elements within a tuple. Heterogenous meaning that each element of a tuple can be of a different type.</p>
 
-		  <p>A Tuple is a finite heterogeneous sequence. Finite meaning that there are a fix number of elements within a tuple. Heterogenous meanint that each element of a tuple can be of a different type.</p>
+		  <p>The tuple <code>(String, u32)</code> states that the first element is of the tuple is of type <code>String</code> and the second element of the tuple is of type <code>u32</code>. You can think of th elements of your tuple as properties of the object. For example, the tuple <code>(String, u32)</code> can represent an employee where the <code>String</code> could be the employee's name while <code>u32</code> could represent the number of years they spent at the company. If we were to sort a list of these tuples, we could do it by the first element (String -- name), the second element (u32 -- years at the company) or a combination of the two elements [(name, years at the company) or (years at the company , name)].</p>
+		  <p>To sort only by the first element or the second element would be a one dimensional sort because we would be sorting by one property. For example, to sort a group of people soley by their name is a one dimentional sort. In this type of sort, if two people have the same name, then we can arbitrarily place one person in front of the other because we know that any ordering of these two people would be correct. However, if we were to do a multi-dimensional sort and sort by both name and their years at the company, people with the same name would then be sorted by how many years they have been with the company. In other words, we will first sort the group of people by name, and, if multiple people have the same name, we would then sort those people by how many years they have been with the company.</p>
 
-		  <p>The tuple <code>(String, u32)</code> states that the first element is of the tuple is of type <code>String</code> and the second element of the tuple is of type <code>u32</code>. You can think of the elements of your tuple as properties of the object. For example, <code>String</code> could represent a person's name while <code>u32</code> could represent their age.</p>
+		  <p>This way of sorting where we look at one property and, if two elements have the same value for that property, we then compare the next property is the default sort implementation for Rust Tuples. This implementation starts by comparing the left most element in the tuples and, if those elements are the equal, it will then move onto the next left most element for comparison.</p>
 
-		  <p>If we were to sort a list of these tuples of name and age, we could do it by the first element, the second element or a combination of the two elements. To sort only by the first element or the second element would be a one dimensional sort because we would only be sorting by one property. An example of this is sorting a group of people by name. In this type of sort, if two people have the same name, then we can arbitrarily place one person in front of the other because we know that any ordering of these two people would be correct. However, if we were to do a multi-dimensional sort and sort by both name and age, people with the same name would then be sorted by their age. In other words, we will first sort the group of people by name, and, if multiple people have the same name, we would then sort those people by age.</p>
+		  <div class="example">
+		    <h5>Example 6.1</h5>
+		    <pre>let mut list = vec![
+    ("a".to_string(), 1),
+    ("ab".to_string(), 0),
+    ("b".to_string(), 2),
+    ("a".to_string(), 0),
+    ("ba".to_string(), 0),
+];
+		      
+list.sort();
 
-		  <p>This way of sorting where we look at one property and, if two elements have the same value for that property, we then compare the next property is the default sort implementation for Rust Tuples. This implementation start by using the left most elemement in the Tuple for comparison and then moves right as needed.</p>
-
-		  <pre>	let mut test = vec![
-		("a".to_string(), 1),
-		("ab".to_string(), 0),
-		("b".to_string(), 2),
-		("a".to_string(), 0),
-		("ba".to_string(), 0),
-	];
-    test.sort();
-
-    println!("{:?}", test);
-	
-	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
-		  </pre>
-
+println!("{:?}", list);</pre>
+		    <h5>Output 6.1</h5>
+		    <pre>[("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]</pre>
+		  </div>
 		  <p>In the above example, we use the default sort implementation to sort a list of tuple. We can replicate this sort with the <code>sort_by</code> method by passing the appropriate closure function.</p>
 
-		  <pre>    let mut test = vec![
-		("a".to_string(), 1),
-		("ab".to_string(), 0),
-		("b".to_string(), 2),
-		("a".to_string(), 0),
-		("ba".to_string(), 0),
-	];
+		  <div class="example">
+		    <h5>Example 6.2</h5>
+		    <pre>let mut list = vec![
+    ("a".to_string(), 1),
+    ("ab".to_string(), 0),
+    ("b".to_string(), 2),
+    ("a".to_string(), 0),
+    ("ba".to_string(), 0),
+];
 
-    test.sort_by(|a, b| a.0.cmp(&amp;b.0).then(a.1.cmp(&amp;b.1)));
+list.sort_by(|a, b| a.0.cmp(&amp;b.0).then(a.1.cmp(&amp;b.1)));
     
-	println!("{:?}", test);
+println!("{:?}", list);</pre>
 
-	//output: [("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]
-		  </pre>
+		    <h5>Output 6.2</h5>
+		    <pre>[("a", 0), ("a", 1), ("ab", 0), ("b", 2), ("ba", 0)]</pre>
+		  </div>
+		  
+		  <p>In our closure we used the <code>cmp</code> method to compare the first element of tuples <code>a</code> and <code>b</code>. The <code>cmp</code> method returns an Ordering Enum. The Ordering Enum has a <code>then</code> method that allows us to chain Ordering Enums together when the initial <code>cmp</code> result is not Ordering::Equal.</p>
 
-		  <p>In our closure we used the <code>cmp</code> method to compare the first element of Tuples <code>a</code> and <code>b</code>. The <code>cmp</code> method returns an Ordering Enum. The Ordering Enum has a <code>then</code> method that allows us to chain Ordering Enums together when the initial <code>cmp</code> result is not Ordering::Equal.</p>
 
+		  <p>Though our tuple has multiple properties, we can still sort by a single property. For example, coming back to our employee tuples (String -- name, u32 -- years at the company), we could sort our employees by how many years they have been with the company in descending order while ignoring thier name.</p>
 
-		  <p>Though our tuple has multiple properties, we can still sort by a single property. For example, we could take a list of employees represented by the tuple <code>(&amp;str, u32)</code> where <code>&amp;str</code> is represents their name and <code>u32</code> represents their years with the company and sort them in descending order by how many years they have been with the company.</p>
-
-		  <pre>let mut list = vec![
-	("Marcus".to_string(), 2),
-	("Jovanna".to_string(), 5),
-	("Carmen".to_string(), 2),
-	("Christy".to_string(), 2),
-	("Dillon".to_string(), 0),
-	("Jerry".to_string(), 1)
+		  <div class="example">
+		    <h5>Example 6.3</h5>
+		    <pre>let mut list = vec![
+    ("Marcus".to_string(), 2),
+    ("Jovanna".to_string(), 5),
+    ("Carmen".to_string(), 2),
+    ("Christy".to_string(), 2),
+    ("Dillon".to_string(), 0),
+    ("Jerry".to_string(), 1)
 ];
 
 list.sort_by(|a, b| a.1.cmp(&amp;b.1).reverse());
     
-println!("{:?}", list);
+println!("{:?}", list);</pre>
 
-//output: [("Jovanna", 5), ("Marcus", 2), ("Carmen", 2), ("Christy", 2), ("Jerry", 1), ("Dillon", 0)]
-		  </pre>
+		    <h5>Output 6.3</h5>
+		    <pre>[("Jovanna", 5), ("Marcus", 2), ("Carmen", 2), ("Christy", 2), ("Jerry", 1), ("Dillon", 0)]</pre>
+		  </div>
 
-		  <p>When looking at the output of our sort, you will notice that employees that have worked the same number of years are not presenting in alphabetical order. This is intentional because the function we are using to sort them ignores their name.</p>
+		  <p>When looking at the output of our sort, you will notice that employees that have worked the same number of years are not in alphabetical order by name. This is intentional because the function we are using to sort them ignores their name.</p>
 		  
 		</section>
 	</body>
