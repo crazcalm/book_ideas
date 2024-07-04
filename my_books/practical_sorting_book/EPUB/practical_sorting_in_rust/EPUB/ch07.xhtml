@@ -10,66 +10,83 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 7: Structs and Traits</h2>
 
-		  <p>The great thing about structs is that everything we learned about numbers and tuples applies to structs.</p>
-
-		  <p>For exmaple, here is an employee struct with two fields; <code>name</code> and <code>years_of_service</code></p>
-		  <pre>struct Employee {
+		  <p>The great thing about structs is that everything we learned about numbers and tuples also applies to structs. For exmaple, here is an employee struct with two fields; <code>name</code> and <code>years_of_service</code></p>
+		  <div class="example">
+		    <h5>Code Snippet</h5>
+		    <pre>struct Employee {
     name: String,
     years_of_service: u32
 }
-		  </pre>
+		    </pre>
+		  </div>
+		  
+		  <p>This struct has two fields. One field is of type <code>String</code> and the other is of type <code>u32</code>, which is similar to the tuple <code>(String, u32)</code> that we previously explored. The difference between our Employee struct and the tuple <code>(String, u32)</code> is that the struct has named fields while the tuple does not. For example, when using the tuple we accessed the employee's name via its index in the tuple (<code>tuple.0</code>) whereas, for the struct, we access the name of the employee by calling the name property on the struct instance (<code>struct_instance.name</code>).</p>
 
-		  <p>This struct has two fields. One field is of tuple <code>String</code> and the other is of type <code>u32</code>, which is similar to a Tuple in one of our previous examples. The difference between these two data types is that the Struct has named fields while the Tuple did not. For example, when using the tuple we accessed the employee name via its index in the tuple (<code>tuple.0</code>) whereas, for the Struct, we access the name of the employee by calling the name property on the Struct instance (<code>struct.name</code>).</p>
+		  <p>Another difference between structs and tuples is that tuples come with a number of Traits already implemented for them. For example, we were able to print out debug information for our tuples because Tuple implements the Debug Trait. We were also able to sort a list of tuples because Tuple implements the Ord Trait. In Rust, our Structs do not come with any implemented Traits. This means that if you want the functionality provided by a Trait for your struct, then you have to implement that Trait. When implementing a Trait for a Struct, you have to create a <code>impl</code> block that states the Trait you are implementing, the struct you are implementing it for, and, withing the code block, you must implement all of the mandatory methods for the Trait. For example, the Debug Trait has one required method. To implement Debug for our Employee Struct, we would do the following:</p>
 
-		  <p>Another difference between Structs and Tuples is that Tuples come with a number of Traits already implemented for them. For example, we were able to print out debug information for out Tuples because Tuple implements the Debug Trait. We were also able to sort a list of Tuples because Tuples implement the Ord Trait. In Rust, our Structs do not come with any implemented Traits. This means that if you want the functionality provided by a Trait for your Struct, then you have to implement that Trait.</p>
-
-		  <p>When implementing a Trait for a Struct, you have to create a <code>impl</code> block that states the Trait you are implementing, the struct you are implementing it for, and, withing the code block, you must implement all of the mandatory methods for the Trait.</p>
-
-		  <p>For example, the Debug Trait has one required method. To implement Debug for our Employee Struct, we would do the following:</p>
-
-		  <pre>use std::fmt;
+		  <div class="example">
+		    <h5>Example 7.1</h5>
+		    <pre>use std::fmt;
 
 struct Employee {
     name: String,
-    years_of_service: u32
+    years_of_service: u32,
 }
 
 impl fmt::Debug for Employee {
-    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -> fmt::Result {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
         f.debug_struct("Employee")
-         .field("name", &amp;self.name)
-         .field("years_of_service", &amp;self.years_of_service)
-         .finish()
+            .field("name", &amp;self.name)
+            .field("years_of_service", &amp;self.years_of_service)
+            .finish()
     }
 }
 
-fn main(){
-	let marcus = Employee{name: "Marcus".to_string(), years_of_service: 2};
-	println!("{:?}", marcus);
-}
-		  </pre>
+fn main() {
+    let marcus = Employee {
+        name: "Marcus".to_string(),
+        years_of_service: 2,
+    };
+    println!("{:?}", marcus);
+}</pre>
+		    <h5>Output 7.1</h5>
+		    <pre>Employee { name: "Marcus", years_of_service: 2 }</pre>
+		  </div>
+		  
+		  <p>The <code>fmt</code> method is the required method that must be implemented for the Debug Trait. Its function signature is defined by the Trait.</p>
 
-		  <p>The <code>fmt</code> method is the required method that must be implemented for the Debug Trait. Its function signature is defined by the Trait (You can find it in the documentation of the Trait). When implementing a required method, we are responsible for fillinf out the function body. For the <code>fmt</code> method, out function body is filled with a lot of boilerplate code that can be pulled from the Debug Trait documentation. That said, from a high level, we are telling the formatter (<code>fmt::Formatter</code>) how to read our object. The <code>f.debug_struct</code> line tells the formatter that our object is a Struct. We pass in the name of the Struct, so that the formatter knows what to call our Struct. We then use the <code>fields</code> method to inform the formatter what our field names are called and where it can find the values for those fields. Lastly, we call <code>finish</code> to tell the formatter that we will not give you more any more information and that you can now do whatever proccessing you need to do to create our Debug string.</p>
+		  <div class="example">
+		    <h5>Debug Trait Documentation Snippet</h5>
+		    <pre>pub trait Debug {
+    // Required method
+    fn fmt(&amp;self, f: &amp;mut Formatter&lt;'_&gt;) -> Result&lt;(), Error&gt;;
+}</pre>
+		  </div>
+
+		  <p>When implementing a required method, we are responsible for filling out the function body. For the <code>fmt</code> method, our function body is filled with a lot of boilerplate code that can be pulled from the example listed in the Debug Trait documentation. That said, from a high level, we are telling the formatter (<code>fmt::Formatter</code>) how to read our object. The <code>f.debug_struct</code> line tells the formatter that our object is a struct. We pass in the name of the struct, so that the formatter knows what to call our struct. We then use the <code>fields</code> method to inform the formatter what our field names are called and where it can find the values for those fields. Lastly, we call <code>finish</code> to tell the formatter that we will not give it any more information and that it can now do whatever proccessing it needs to do to create our Debug string.</p>
 
 
-		  <p>Implementing the Debug Trait for every Struct you create can become tedious. Luckily, Rust provides a way to automatically generate commonly used traits. We do this with the derived attribute, which allows us to pass in a list of Traits we would like to generate default implementations for (Note: the <a href="https://doc.rust-lang.org/book/appendix-03-derivable-traits.html">Rust Book</a> lists the traits that we can use Derive with).</p>
+		  <p>Implementing the Debug Trait for every struct we create can become tedious. Luckily, Rust provides a way to automatically generate the implementation for commonly used traits. We do this with the derived attribute, which allows us to pass in a list of Traits we would like to generate default implementations for (<b>Note</b>: the <a href="https://doc.rust-lang.org/book/appendix-03-derivable-traits.html">Rust Book</a> lists the traits that we can use the derive attribute with). Here is how we would use <code>derive</code> to generate a default implementation for the Debug Trait:</p>
 
-		  <p> Here is how we would use <code>derive</code> to generate a default implementation for the Debug Trait:</p>
-		  <pre>#[derive(Debug)]
+		  <div class="example">
+		    <h5>Example 7.2</h5>
+		    <pre>#[derive(Debug)]
 struct Employee {
     name: String,
-    years_of_service: u32
+    years_of_service: u32,
 }
 
-fn main(){
-	let marcus = Employee{name: "Marcus".to_string(), years_of_service: 2};
-	println!("{:?}", marcus);
-	
-	//output: Employee { name: "Marcus", years_of_service: 2 }
-}
-		  </pre>
-
-		  <p>Using derive to generate the implatation of Debug creates the same code that we wrote in our previous example. This means that for the cases where you do not want any custom code in your debug representation, using derive to generate your implementation is a valid choice that will save you time.</p>
+fn main() {
+    let marcus = Employee {
+        name: "Marcus".to_string(),
+        years_of_service: 2,
+    };
+    println!("{:?}", marcus);
+}</pre>
+		    <h5>Output 7.2</h5>
+		    <pre>Employee { name: "Marcus", years_of_service: 2 }</pre>
+		  </div>
+		  <p>Using the derive attribute to generate the implatation of the Debug Trait creates the same code that we wrote in our previous example. This means that for the cases where you do not want any custom code in your debug representation, using the derive attribute to generate your implementation is a valid choice that will save you time.</p>
 		</section>
 	</body>
 </html>
