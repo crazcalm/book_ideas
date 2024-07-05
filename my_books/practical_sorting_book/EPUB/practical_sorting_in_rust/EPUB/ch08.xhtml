@@ -10,72 +10,168 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 8: Super Traits</h2>
 
-		  <p>The Ord Trait, which is required for sorting, is a Super Trait. A Super Trait is a regular Trait with the additional requirement of listing other traits that must implement for this Trait to work. Here is a snippet of the Ord Trait definition:</p>
+		  <p>A Super Trait is a regular Trait with the additional requirement of listing other traits that must implement for this Trait to work. The Ord Trait, which is required for sorting, is an example of a Super Trait. Here is a snippet of the Ord Trait definition:</p>
 
-		  <pre>pub trait Ord: Eq + PartialOrd {
+		  <div class="example">
+		    <h5>Trait Signature Snippet</h5>
+		    <pre>pub trait Ord: Eq + PartialOrd {
     // Required method
     fn cmp(&amp;self, other: &amp;Self) -> Ordering;
 	...
-}
-		  </pre>
+}</pre>
+		  </div>
+		    
+		  <p>The <code>Eq + PartialOrd</code> part means that the <code>Eq</code> and the <code>PartialOrd</code> Traits are required for the implementation of the Ord Trait. Please note that when a Super Trait lists required Traits, those Traits can also be Super Traits. For example, <code>Eq</code> is also a super trait. The <code>Eq</code> Trait requires that the <code>PartialEq</code> Trait be implemented.</p>
 
-		  <p>The <code>Eq + PartialOrd</code> part means that the <code>Eq</code> and the <code>PartialOrd</code> Traits are required for the implementation of the Ord Trait. Please note the when a Super Trait lists required Traits, those Traits can also be Super Traits. For example, <code>Eq</code> is also a super trait. The <code>Eq</code> Trait requires that the <code>PartialEq</code> Trait be implemented.</p>
+		  <div class="example">
+		    <h5>Trait Signature Snippet</h5>
+		    <pre>pub trait Eq: PartialEq { }</pre>
+		  </div>
+		  
+		  <p>This means that implementing the Ord Trait means that we also have to implement the Eq Trait, the ParialEq Trait and the PartialOrd Trait. Lucky for us, we are allowed to generate default implementations for all of these Traits using the derive attribute.</p>
 
-		  <pre>pub trait Eq: PartialEq { }</pre>
-
-		  <p>This means that implementing the Ord Trait means that we also have to implement the Eq Trait, the ParialEq Trait and the PartialOrd Trait. Lucky for us, we are allowed to generate default implementations for all of these Traits using derive.</p>
-
-		  <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+		  <div class="example">
+		    <h5>Example 8.1</h5>
+		    <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
 struct Employee {
     name: String,
-    years_of_service: u32
+    years_of_service: u32,
 }
 
 fn main() {
     let mut list_of_employees = vec![
-		Employee{name: "Marcus".to_string(), years_of_service: 2},
-		Employee{name: "Jovanna".to_string(), years_of_service: 5},
-		Employee{name: "Carmen".to_string(), years_of_service: 2},
-		Employee{name: "Christy".to_string(), years_of_service: 2},
-		Employee{name: "Dillon".to_string(), years_of_service: 0},
-		Employee{name: "Jerry".to_string(), years_of_service: 1},
+        Employee {
+            name: "Marcus".to_string(),
+            years_of_service: 2,
+        },
+        Employee {
+            name: "Jovanna".to_string(),
+            years_of_service: 5,
+        },
+        Employee {
+            name: "Carmen".to_string(),
+            years_of_service: 2,
+        },
+        Employee {
+            name: "Christy".to_string(),
+            years_of_service: 2,
+        },
+        Employee {
+            name: "Dillon".to_string(),
+            years_of_service: 0,
+        },
+        Employee {
+            name: "Jerry".to_string(),
+            years_of_service: 1,
+        },
     ];
 
     list_of_employees.sort();
-    
-	println!("{:#?}", list_of_employees);
+
+    println!("{:#?}", list_of_employees);
 }
-		  </pre>
+</pre>
 
-		  <p>In the above example, we derived all of the necessary Traits needed for sorting and then we were able to sort the list of employee struct instances. Given that these are derived implementations of Traits, we know that, when sorting, our comparisons are dictated by the order of the fields. Since the Emploee Struct defined the name field first, that field is the first field compared during the sorting process. As a result, our sorted list is by name and then by years of service.</p>
+		    <h5>Output 8.1</h5>
+		    <pre>[
+    Employee {
+        name: "Carmen",
+        years_of_service: 2,
+    },
+    Employee {
+        name: "Christy",
+        years_of_service: 2,
+    },
+    Employee {
+        name: "Dillon",
+        years_of_service: 0,
+    },
+    Employee {
+        name: "Jerry",
+        years_of_service: 1,
+    },
+    Employee {
+        name: "Jovanna",
+        years_of_service: 5,
+    },
+    Employee {
+        name: "Marcus",
+        years_of_service: 2,
+    },
+]</pre>
+		  </div>
+		  <p>In the above example, we derived all of the necessary Traits needed for sorting and then we were able to sort the list of employee struct instances. Given that these are derived implementations of Traits, we know that our sorting implementation is dictated by the ordering of our struct's fields. Since the Emploee Struct defined the name field first, that field is the first field compared during the sorting process. As a result, our sorted list is by name and then by years of service. By switching the order of the Employee Structs fields, we can change the sort so that the list will be sorted by years of service and then by name.</p>
 
-		  <p>By switching the order of the Employee Structs fields, we can change the sort so that the list will be sorted by years of service and then by name.</p>
-
-		  <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+		  <div class="example">
+		    <h5>Example 8.2</h5>
+		    <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
 struct Employee {
     years_of_service: u32,
-	name: String,
+    name: String,
 }
 
 fn main() {
     let mut list_of_employees = vec![
-		Employee{name: "Marcus".to_string(), years_of_service: 2},
-		Employee{name: "Jovanna".to_string(), years_of_service: 5},
-		Employee{name: "Carmen".to_string(), years_of_service: 2},
-		Employee{name: "Christy".to_string(), years_of_service: 2},
-		Employee{name: "Dillon".to_string(), years_of_service: 0},
-		Employee{name: "Jerry".to_string(), years_of_service: 1},
+        Employee {
+            name: "Marcus".to_string(),
+            years_of_service: 2,
+        },
+        Employee {
+            name: "Jovanna".to_string(),
+            years_of_service: 5,
+        },
+        Employee {
+            name: "Carmen".to_string(),
+            years_of_service: 2,
+        },
+        Employee {
+            name: "Christy".to_string(),
+            years_of_service: 2,
+        },
+        Employee {
+            name: "Dillon".to_string(),
+            years_of_service: 0,
+        },
+        Employee {
+            name: "Jerry".to_string(),
+            years_of_service: 1,
+        },
     ];
 
     list_of_employees.sort();
-    
-	println!("{:#?}", list_of_employees);
-}
-		  </pre>
 
-		  <p>Now that our Employee Struct defined the years of service field before the name field, our list is sorted by years of service and then by name.</p>
+    println!("{:#?}", list_of_employees);
+}</pre>
 
-		  <p>This change is so easy to make that it can happen on accident. If you do not want it to happen on accident, I would suggest that you either have unit tests that will alert you to this accident or that you implement the Triats yourself so that the sort implementation is no longer dictated by the order of your fields.</p>
+		    <h5>Output 8.2</h5>
+		    <pre>[
+    Employee {
+        years_of_service: 0,
+        name: "Dillon",
+    },
+    Employee {
+        years_of_service: 1,
+        name: "Jerry",
+    },
+    Employee {
+        years_of_service: 2,
+        name: "Carmen",
+    },
+    Employee {
+        years_of_service: 2,
+        name: "Christy",
+    },
+    Employee {
+        years_of_service: 2,
+        name: "Marcus",
+    },
+    Employee {
+        years_of_service: 5,
+        name: "Jovanna",
+    },
+]</pre>
+		  </div>
+		  <p>Now that our Employee Struct defined the years of service field before the name field, our list is sorted by years of service and then by name. This change is so easy to make that it can happen on accident. If you want to decrease the possiblity of accidently changing your sorting order, then I would suggest enforcing the sorted order with unit tests so that the accident can be discovered quickly.</p>
 		 
 		</section>
 	</body>

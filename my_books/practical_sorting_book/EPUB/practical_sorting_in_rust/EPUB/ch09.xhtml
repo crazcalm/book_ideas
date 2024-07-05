@@ -10,11 +10,11 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 9: Implementing our Traits</h2>
 
-		  <p>Lets walk through the work needed to implement the Ord Trait for our Employee Struct so that we can gain a better understanding of what is happening. We will approach this systematically by writing unit tests for the desired order and then implementing each trait one at a time while also removing it from the derived Trait list.</p>
+		  <p>Lets walk through the work needed to implement the Ord Trait for our Employee Struct so that we can gain a better understanding of what is happening. We will approach this systematically by writing a unit test to enforce the desired order and then we will implement each trait one at a time while also removing it from the derived trait list. For this example, we want our list of Employees to be sorted by years of service and then by name. With that in mind, here is the unit test that we will use to verify that our changes have not affected our sorting.</p>
 
-		  <p>For this example, we want our list of Employees to be sorted by years of service and then by name. With that in mind, here is the unit test that we will use to verify that our changes have not affected our sorting.</p>
-
-		  <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+		  <div class="example">
+		    <h5>Example 9.1</h5>
+		    <pre>#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
 struct Employee {
     years_of_service: u32,
     name: String,
@@ -86,93 +86,48 @@ mod test {
 
         assert_eq!(list_of_employees, expected);
     }
-}
-		  </pre>
+}</pre>
 
-		  <p>The Ord Trait is a super Trait that requires the Eq Trait and the PartialOrd Trait to be implemented. The Eq Trait is also a Super Trait and it requires PartialEq to be implemented. We'll start by implementing the PartialEq Trait.</p>
+		    <h5>Output 9.1</h5>
+		    <pre>Running unittests examples/example9-1.rs (target/debug/examples/example9_1-8726945b71f9cb34)
 
-		  <p>PartialEq is a Trait that has one required method called <code>eq</code> that allows us to compare one instance of the Struct to another instance of the Struct. This method will return a boolean to denote whether or not these Struct instances are equal. With regards to implementation, we will compare the year of service field and the name field of two Struct instances and return the resulting boolean.</p>
+running 1 test
+test test::test_sort ... ok
 
-		  <pre>#[derive(Debug, Eq, PartialOrd, Ord)]
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
+
+		  <p>We need to pick which trait to implement first. The Ord Trait is a super Trait that requires the Eq Trait and the PartialOrd Trait to be implemented. The Eq Trait is also a Super Trait and it requires PartialEq to be implemented. We'll start by implementing the PartialEq Trait because it is not a Super Trait.</p>
+
+		  <p>PartialEq is a Trait that has one required method called <code>eq</code> that will allows us to compare one instance of the struct to another instance of the struct. This method will return a boolean to denote whether or not these struct instances are equal. With regards to implementation, we will compare the year of service field and the name field of two Struct instances and return the resulting boolean.</p>
+
+		  <div class="example">
+		    <h5>Example 9.2</h5>
+		    <pre>#[derive(Debug, Eq, PartialOrd, Ord)]
 struct Employee {
     years_of_service: u32,
     name: String,
 }
 
 impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
+    fn eq(&amp;self, other: &amp;Self) -&gt; bool {
         self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
     }
 }
 
-fn main() {}
+...
 
-#[cfg(test)]
-mod test {
-    use super::Employee;
+</pre>
 
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
+		    <h5>Output 9.2</h5>
+		    <pre>Running unittests examples/example9-2.rs (target/debug/examples/example9_2-7623f2f8d77eb3ff)
 
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
+running 1 test
+test test::test_sort ... ok
 
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-		    }</pre>
-
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
+		  
 		  <p>In the example, we implemented the PartialEq Trait for Employee and removed that Trait from the derived list. Feel free to run the unit test to make sure everything still works as expected.</p>
 
 		  <p>Next, we will implement the Eq Trait. The Eq Trait has not required methods. This means that as long as you implement PartialEq Trait, you can get the Eq Trait for free by writing implementing it and leaving the code block for it empty.</p>
