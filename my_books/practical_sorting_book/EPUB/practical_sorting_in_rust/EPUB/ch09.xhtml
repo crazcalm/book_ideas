@@ -97,7 +97,7 @@ test test::test_sort ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
 		  </div>
 
-		  <p>We need to pick which trait to implement first. The Ord Trait is a super Trait that requires the Eq Trait and the PartialOrd Trait to be implemented. The Eq Trait is also a Super Trait and it requires PartialEq to be implemented. We'll start by implementing the PartialEq Trait because it is not a Super Trait.</p>
+		  <p>We need to pick which trait to implement first. The Ord Trait is a Super Trait that requires the Eq Trait and the PartialOrd Trait to be implemented. The Eq Trait is also a Super Trait and it requires PartialEq to be implemented. We'll start by implementing the PartialEq Trait because it is not a Super Trait.</p>
 
 		  <p>PartialEq is a Trait that has one required method called <code>eq</code> that will allows us to compare one instance of the struct to another instance of the struct. This method will return a boolean to denote whether or not these struct instances are equal. With regards to implementation, we will compare the year of service field and the name field of two Struct instances and return the resulting boolean.</p>
 
@@ -128,11 +128,13 @@ test test::test_sort ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
 		  </div>
 		  
-		  <p>In the example, we implemented the PartialEq Trait for Employee and removed that Trait from the derived list. Feel free to run the unit test to make sure everything still works as expected.</p>
+		  <p>In the example, we implemented the PartialEq Trait for Employee and removed that trait from the derived traits list. Feel free to run the unit test to make sure everything still works as expected.</p>
 
-		  <p>Next, we will implement the Eq Trait. The Eq Trait has not required methods. This means that as long as you implement PartialEq Trait, you can get the Eq Trait for free by writing implementing it and leaving the code block for it empty.</p>
+		  <p>Next, we will implement the Eq Trait. The Eq Trait has no required methods. This means that as long as you implement PartialEq Trait, you can get the Eq Trait for free by writing an implementation block for it and leaving it empty.</p>
 
-		  <pre>#[derive(Debug, PartialOrd, Ord)]
+		  <div class="example">
+		    <h5>Example 9.3</h5>
+		    <pre>#[derive(Debug, PartialOrd, Ord)]
 struct Employee {
     years_of_service: u32,
     name: String,
@@ -140,84 +142,23 @@ struct Employee {
 
 impl Eq for Employee {}
 
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
+... 
+</pre>
 
-fn main() {}
+		    <h5>Output 9.3</h5>
+		    <pre>Running unittests examples/example9-3.rs (target/debug/examples/example9_3-aa0d48576b6ab148)
 
-#[cfg(test)]
-mod test {
-    use super::Employee;
+running 1 test
+test test::test_sort ... ok
 
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
 
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
+		  <p>The next trait we will implement is the PartialOrd Trait. This trait has one required method called <code>partial_cmp</code> that compares two instance of the same type and returns an <code>Option&lt;Ordering&gt;</code>. Please note that this method is very similar to the <code>cmp</code> method that comes from the Ord Trait. The difference between these two methods is that <code>cmp</code> returns an Ordering Enum and <code>partial_cmp</code> returns an Option that contains an Ordering Enum.</p>
 
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		  </pre>
-
-		  <p>The next Trait we will implement is the PartialOrd Trait. This Trait has one required method called <code>partial_cmp</code> that compares two instance of the smae type and returns an <code>Option&lt;Ordering&gt;</code>. Please note that this method is very similar to the <code>cmp</code> method that comes from the Ord Trait. The difference between these two methods is that <code>cmp</code> returns an Ordering Enum and <code>partial_cmp</code> returns an Option that contains an Ordering Enum.</p>
-
-		  <pre>use std::cmp::Ordering;
+		  <div class="example">
+		    <h5>Example 9.4</h5>
+		    <pre>use std::cmp::Ordering;
 
 #[derive(Debug, Ord)]
 struct Employee {
@@ -226,94 +167,31 @@ struct Employee {
 }
 
 impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
+    fn partial_cmp(&amp;self, other: &amp;Self) -&gt; Option&lt;Ordering&gt; {
         Some(
             self.years_of_service
                 .cmp(&amp;other.years_of_service)
-                .then(self.name.cmp(&amp;other.name)),
+                .then(self.name.cmp(&amp;other.name))
         )
     }
 }
 
-impl Eq for Employee {}
+...</pre>
+		    <h5>Output 9.4</h5>
+		    <pre>Running unittests examples/example9-4.rs (target/debug/examples/example9_4-92c2f46b50b99501)
 
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
+running 1 test
+test test::test_sort ... ok
 
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		    </pre>
-
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
 		    <p>When implementing the the <code>partial_cmp</code> method, we can leverage the fact that each of the field types implement the Ord Trait. As such we can compare the years of service field and the name field using their types <code>cmp</code> method and chain the comparisions with the <code>then</code> method from the Ordering Enum that is returned from the <code>cmp</code> method. We wrap all of this in a <code>Some</code> because we need to return <code>Some&lt;Ordering&gt;</code>. Also, because the Ordering Enum is explicitly being mentioned in our function signature, we will need to make sure to import it at the top of the file.</p>
 
+		  <p>At this point, we have implemented enough traits that our sorted order is not longer dictated by the order of the struct fields. To demonstate that, switch the ordering of our Employee Struct fields so that name comes before years of service.</p>
+
+
+		  <div class="example">
+		    <h5>Example 9.5</h5>
 		    <pre>use std::cmp::Ordering;
 
 #[derive(Debug, Ord)]
@@ -321,99 +199,21 @@ struct Employee {
     name: String,
     years_of_service: u32,
 }
+...</pre>
 
-impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
-        Some(
-            self.years_of_service
-                .cmp(&amp;other.years_of_service)
-                .then(self.name.cmp(&amp;other.name)),
-        )
-    }
-}
+		    <h5>Output 9.5</h5>
+		    <pre>Running unittests examples/example9-5.rs (target/debug/examples/example9_5-ae15b17ed43fc12a)
 
-impl Eq for Employee {}
+running 1 test
+test test::test_sort ... ok
 
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-		      </pre>
-
-		      <p>At this point, we have implemented enough Traits to prevent the chnging of Struct field order from altering our sorting algorithm. To demonstate that, switch the ordering of our Employee Struct fields so that name comes before years of service.</p>
-		 
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
 
 		      <p>The last Trait we have to implement is the Ord Trait. This Trait has one required method called <code>cmp</code>. Given the similarities of the <code>cmp</code> method to the <code>partial_cmp</code> method, we can implement <code>cmp</code> using <code>partial_cmp</code>.</p>
 
+		      <div class="example">
+			<h5>Example 9.6</h5>
 			<pre>use std::cmp::Ordering;
 
 #[derive(Debug)]
@@ -427,98 +227,22 @@ impl Ord for Employee {
         self.partial_cmp(&amp;other).unwrap()
     }
 }
+...</pre>
+			<h5>Output 9.6</h5>
+			<pre>Running unittests examples/example9-6.rs (target/debug/examples/example9_6-5b1ffaf92102be33)
 
-impl PartialOrd for Employee {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
-        Some(
-            self.years_of_service
-                .cmp(&amp;other.years_of_service)
-                .then(self.name.cmp(&amp;other.name)),
-        )
-    }
-}
+running 1 test
+test test::test_sort ... ok
 
-impl Eq for Employee {}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		      </div>
 
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
+		  <p>Congratulations! We have implemented the Ord Trait for our Employee Struct. Before we move on, there is something I have to mention about Super Traits. Given the relationships of the dependencies, it is easy to mistakingly assume that the methods of the Sub Traits must be used to implement the Super Traits. This directional ordering does not exist. For example, even though the Ord Trait is a Super Trait that requires the PartialOrd Trait, we can use the Ord Trait to implement the PartialOrd Trait.</p>
 
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}</pre>
-
-			  <p>Congratulations! We have implemented the Ord Trait for our Employee Struct.</p>
-
-			  <p>Before we move on, there is something I have to mention about Super Traits. Given the relationships of the dependencies, it is easy to mistakingly assume that the methods of the Sub Traits must be used to implement the Super Traits. This directional ordering does not exist. For example, even though the Ord Trait is a Super Trait that requires the PArtialOrd Trait, we can use the Ord Trait to implement the PartialOrd Trait.</p>
-
-			  <pre>use std::cmp::Ordering;
+		  <div class="example">
+		    <h5>Example 9.7</h5>
+		    
+		    <pre>use std::cmp::Ordering;
 
 #[derive(Debug)]
 struct Employee {
@@ -540,84 +264,18 @@ impl PartialOrd for Employee {
     }
 }
 
-impl Eq for Employee {}
-
-impl PartialEq for Employee {
-    fn eq(&amp;self, other: &amp;Self) -> bool {
-        self.years_of_service == other.years_of_service &amp;&amp; self.name == other.name
-    }
-}
-
-fn main() {}
-
-#[cfg(test)]
-mod test {
-    use super::Employee;
-
-    #[test]
-    fn test_sort() {
-        let expected = vec![
-            Employee {
-                years_of_service: 0,
-                name: "Dillon".to_string(),
-            },
-            Employee {
-                years_of_service: 1,
-                name: "Jerry".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Carmen".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Christy".to_string(),
-            },
-            Employee {
-                years_of_service: 2,
-                name: "Marcus".to_string(),
-            },
-            Employee {
-                years_of_service: 5,
-                name: "Jovanna".to_string(),
-            },
-        ];
-
-        let mut list_of_employees = vec![
-            Employee {
-                name: "Marcus".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Jovanna".to_string(),
-                years_of_service: 5,
-            },
-            Employee {
-                name: "Carmen".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Christy".to_string(),
-                years_of_service: 2,
-            },
-            Employee {
-                name: "Dillon".to_string(),
-                years_of_service: 0,
-            },
-            Employee {
-                name: "Jerry".to_string(),
-                years_of_service: 1,
-            },
-        ];
-
-        list_of_employees.sort();
-
-        assert_eq!(list_of_employees, expected);
-    }
-}
-</pre>
+...</pre>
 			  
-			    <p>In the above example, we took the comparison logic out of the <code>partial_cmp</code> method and put it into the <code>cmp</code> method. Then we called the <code>cmp</code> method within the <code>partial_cmp</code> method. Running our unit tests shows us that this change does not affect our sorting order.</p>
+		    <h5>Output 9.7</h5>
+		    <pre>Running unittests examples/example9-7.rs (target/debug/examples/example9_7-4f3a834893cae1eb)
+
+running 1 test
+test test::test_sort ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
+			  
+			    <p>In the above example, we took the comparison logic out of the <code>partial_cmp</code> method and put it into the <code>cmp</code> method. Then we called the <code>cmp</code> method within the <code>partial_cmp</code> method. Running our unit tests shows us that this change does not affect our sorted order.</p>
 			    
 		</section>
 	</body>
