@@ -10,23 +10,90 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 10: Poker Hands</h2>
 
-		  <p>We have learned how to sort lists of items into one logical arrangement. Admittedly, this covers the practical cases of sorting. Moving towards the impractical, let's explore how we handle sorting into more than one logical arrangement.</p>
+		  <p>We have learned how to sort lists of items into a single logical arrangement. Admittedly, this covers the practical cases of sorting. Moving towards the impractical, let's explore how we handle sorting into more than one logical arrangement.</p>
 
 		  <p>Poker is a great example of this because, when we compare poker hands, we need to be able to sort the hand so that all the high value cards are in the front. The poker hand type dictates the logical arrangement that your sort needs to adhere to. Below is a list of the poker hands.</p>
 
-		  <p>TODO: Add list of poker hands</p>
+		  <!--TODO: Try to fix formatting with CSS -->
+		  <div class="example">
+		    <h5>Poker Hands</h5>
+		    <ol>
+		      <li>
+			Royal Flush
+			<br/><br/>
+			10 to Ace, all the same suit
+			<br/><br/>
+		      </li>
+		      <li>
+			Straight Flush
+			<br/><br/>
+			Five cards of the same suit in sequential order
+			<br/><br/>
+		      </li>
+		      <li>
+			Four of a Kind
+			<br/><br/>
+			Four cards with the same rank
+			<br/><br/>
+		      </li>
+		      <li>
+			Full House
+			<br/><br/>
+			Three of a Kind and One Pair
+			<br/><br/>
+		      </li>
+		      <li>
+			Flush
+			<br/><br/>
+			Five cards of the same suit
+			<br/><br/>
+		      </li>
+		      <li>
+			Straight
+			<br/><br/>
+			Five cards of any suit in sequential order
+			<br/><br/>
+		      </li>
+		      <li>
+			Three of a Kind
+			<br/><br/>
+			Three cards with the same rank
+			<br/><br/>
+		      </li>
+		      <li>
+			Two Pair
+			<br/><br/>
+			Two sets of One Pair
+			<br/><br/>
+		      </li>
+		      <li>
+			One Pair
+			<br/><br/>
+			Two cards with the same rank
+			<br/><br/>
+		      </li>
+		      <li>
+			High Card
+			<br/><br/>
+			The card with the highest rank
+			<br/><br/>
+		      </li>
+		    </ol>
+		  </div>
 
-		  <p>If we had a One Pair hand of <code>&lt;3, 2, 1, 5, 2&gt;</code>, we would want to sort our hand so that the pair is at the front of the list, followed by the rest of the cards in high card order (descending order based on card rank) <code>&lt;2, 2, 5, 3, 1&gt;</code>. This ordering makes it easy to compare One Pair hands. For example, if hand one is <code>&lt;2, 2, 5, 3 ,1&gt;</code> and hand two is <code>&lt;6, 6, 3, 2, 1&gt;</code>. We can compare each card in the hands from left to right and know which hand is greater. This technique works even when two hands have the same pair; <code>&lt;2, 2, 5, 3, 1&gt; vs &lt;2, 2, 6, 4, 1&gt;</code>.</p>
+		  <p>If we had a One Pair poker hand of <code>&lt;3, 2, 1, 5, 2&gt;</code>, we would want to sort our hand so that the pair is at the front of the list, followed by the rest of the cards in high card order (descending order based on card rank -- <code>&lt;2, 2, 5, 3, 1&gt;</code>). This ordering makes it easy to compare One Pair hands. For example, if hand one is <code>&lt;2, 2, 5, 3 ,1&gt;</code> and hand two is <code>&lt;6, 6, 3, 2, 1&gt;</code>. We can compare each card in the hands from left to right and know which hand is greater. This technique works even when two hands have the same pair; <code>&lt;2, 2, 5, 3, 1&gt; vs &lt;2, 2, 6, 4, 1&gt;</code>.</p>
 
-		  <p>If we have a High Card poker hand, then we would want to sort our cards solely by our high cards. So a High Card sort of <code>&lt;4, 8, J, A, 5&gt;</code> would become <code>&lt;A, J, 8, 5, 4&gt;</code>. Based on the examples of One Pair and High Card hands, we see that out sorting function is dictated by our poker hand type.</p>
+		  <p>If we had a High Card poker hand, then we would want to sort our cards solely by our high cards. So a High Card sort of <code>&lt;4, 8, J, A, 5&gt;</code> would become <code>&lt;A, J, 8, 5, 4&gt;</code>. Based on these examples, we see that our sorting function is dictated by the type of poker hand we have.</p>
 
 		  <section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h">
-		    <h2 class="title">Chapter 10: Creating Cards</h2>
+		    <h2 class="title">Creating Cards</h2>
 
-		    <p>In order to create poker hands, we first need to create cards.</p>
+		    <p>In order to create poker hands, we first need to create cards to play with.</p>
 
-		    <pre>#[derive(Debug)]
-enum Suite {
+		    <div class="example">
+		      <h5>Example 10.1</h5>
+		      <pre>#[derive(Debug)]
+enum Suit {
     Heart,
     Club,
     Spade,
@@ -35,17 +102,24 @@ enum Suite {
 
 struct Card {
     rank: u8,
-    suite: Suite,
+    suit: Suit,
 }
 
-fn main(){}
-		    </pre>
+fn main(){}</pre>
 
-		    <p>In out example, we created a Card Struct that has two fields; rank and suite. The rank field is of type <code>u8</code> and represents the Rank of the card. The suite field is a Suite Enum that have four variants; Heart, Club, Spade, and Diamond.</p>
+		    </div>
+		    <p>In our example, we created a Card struct that has two fields; rank and suit. The rank field is of type <code>u8</code> and represents the Rank of the card. The suit field is a Suit Enum that have four variants; Heart, Club, Spade, and Diamond.</p>
 
 		  <p>To make the cards visually less confusing, we are going to implement the Debug Trait and make sure that the numbeers 11 - 14 show J (Jack) Q (Queen), K (King) and A (Ace).</p>
 
-		<pre>impl fmt::Debug for Card {
+
+		  <div class="example">
+		    <h5>Example 10.2</h5>
+		    <pre>use std::fmt;
+
+...
+		     
+impl fmt::Debug for Card {
     fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
 	let rank = match self.rank {
 	    x @ 2 ..=10 =&gt; x.to_string(),
@@ -53,41 +127,74 @@ fn main(){}
 	    12 =&gt; "Q".to_string(),
 	    13 =&gt; "K".to_string(),
 	    14 =&gt; "A".to_string(),
-	    _ => panic!("number {:?} is not a valid card number", &amp;self.name),
+	    _ => panic!("number {:?} is not a valid card number", &amp;self.rank),
 	};
 
 	f.debug_struct("Card")
 	    .field("rank", &amp;rank)
-	    .field("suite", &amp;self.suite)
+	    .field("suit", &amp;self.suit)
 	    .finish()
     }
 }
 </pre>
 
-		<p>In our <code>fmt</code> method, we used a match statement on the Card.rank field to create our wanted string representations for the card;s rank. If the value of the Card.rank is between 2 and 10, thenw e will convert them number to a String. We accomplished this by using the <code>@</code> symbol in our match statement. The code <code>x @ 2 ..= 10</code> allows us to check if the value of Card.rank is in the range of <code>2 ..= 10</code> and, if so, bind that value to <code>x</code>. Once that value has been bound to <code>x</code>, we use the match arm to convert <code>x</code> into a String and return it. If the value of Card.rank is 11, 12, 13 or 14, it will match with its own specific arm. All other values, which are not valid ranks for poker, will be caught by the <code>_</code> case and raise an error. After we have our local representation of our card's rank, we pass it to our formatter to be displayed.</p>
+		  </div>
+		  
+		<p>In our <code>fmt</code> method, we used a match statement on the Card.rank field to create our wanted string representations for the card's rank. If the value of the Card.rank is between 2 and 10, then we will convert them number to a string. We accomplished this by using the <code>@</code> symbol in our match statement. The code <code>x @ 2 ..= 10</code> allows us to check if the value of Card.rank is in the range of <code>2 ..= 10</code> and, if so, bind that value to <code>x</code>. Once that value has been bound to <code>x</code>, we use the match arm to convert <code>x</code> into a string and return it. If the value of Card.rank is 11, 12, 13 or 14, it will match with its own arm that will map it to a specific string representation. All other values, which are not valid ranks for poker, will be caught by the <code>_</code> case and raise an error. After we have our local representation of our card's rank, we pass it to the formatter to be displayed.</p>
 
-		<p>Please note that we are also displaying the Card.suite value, which means that out Suite Enum needs to implement Debug. This is done by using derive to generate the debug implementation for Suite Enum.</p>
+		    <p>Please note that our Card Debug implementation passes Card.suit to the formatter, which means that our Suit Enum needs to implement Debug for our Card Debug implementation to work. This is done by using derive to generate the debug implementation for Suit Enum.</p>
 
-		<p>Raising an error when we are trying to print the Debug representation for our Card does not seem ideal. To prevent this from happening, we will create an associative function called <code>new</code> that will be responsible for creating our Cards. This function will verify check the value passed in for Card.rank and make sure it is valid before returning the newly created Card.</p>
+		<p>Raising an error when we are trying to print the debug representation for our Card does not seem ideal. To prevent this from happening, we will create an associative function called <code>new</code> that will be responsible for creating our Cards. This function will verify that the value passed in for Card.rank is within in the range of 2 - 14 prior to creating the Card.</p>
 
-		<pre>impl Card {
-    fn new(rank: u8, suite: Suite) -&gt; Result&lt;Self, &amp;'static str&gt; {
-		match name {
-			x @ 2..=14 =&gt; Ok(Card{rank, suite}),
-			_ => Err("name must be in the range of 2 - 14"),
-		}
+		<div class="example">
+		  <h5>Example 10.3</h5>
+		  <pre>...
+		    
+impl Card {
+    fn new(rank: u8, suit: Suit) -&gt; Result&lt;Self, &amp;'static str> {
+        match rank {
+            x @ 2..=14 =&gt; Ok(Card { rank: x, suit }),
+            _ =&gt; Err("name must be in the range of 2 - 14"),
+        }
     }
 }
-		</pre>
 
-		<p>Our Card::new functionr returns a Result Enum, which has two variants; Ok and Err. If we are able to create a valid Card, we return a new Card instance wrapped in an Ok. If we are unable to create a valid Card, we return an Err with a message explaining what went wrong.</p>
+fn main() {
+    for rank in 2..=14 {
+        println!("{:?}", Card::new(rank, Suit::Heart).unwrap());
+    }
+}
+</pre>
 
-		<p>Now that we can create Cards, we need to import the Ord Trait so that we can sort our cards.</p>
+		  <h5>Output 10.3</h5>
+		  <pre>Card { rank: "2", suit: Heart }
+Card { rank: "3", suit: Heart }
+Card { rank: "4", suit: Heart }
+Card { rank: "5", suit: Heart }
+Card { rank: "6", suit: Heart }
+Card { rank: "7", suit: Heart }
+Card { rank: "8", suit: Heart }
+Card { rank: "9", suit: Heart }
+Card { rank: "10", suit: Heart }
+Card { rank: "J", suit: Heart }
+Card { rank: "Q", suit: Heart }
+Card { rank: "K", suit: Heart }
+Card { rank: "A", suit: Heart }</pre>
+		</div>
+		<p>Our Card::new functionr returns a Result Enum, which has two variants; Ok and Err. If we are able to create a valid Card, we return a new Card instance wrapped in an Ok. If we are unable to create a valid Card, we return an Err with a message explaining what went wrong. To demonstrate the happy path, we updated the main function to print out all of the cards for a single suit. Now that we can create Cards, we need to implement the Ord Trait so that we can sort our cards.</p>
 
-		<p>In poker, we know that a Card's suite only matters when the poker hand type says it does. Since a card's suite does not always matter, we do not want to consider it during our sorting process. This means that we have to manually implement our Traits because deriving them would result in our Cards being sorted by rank and then by suite, which is something we do not want.</p>
+		<p>In poker, we know that a card's suit only matters when the poker hand type says it matters. Since a card's suit does not always matter, we do not want to consider it during our default sorting process. This means that we have to manually implement our traits because deriving them would result in our Cards being sorted by rank and then by suit, when we only only want our cards sorted by rank.</p>
 
-		<pre>impl PartialEq for Card {
-    fn eq(&amp;self, other: &amp;Self) -&lt; bool {
+		<div class="example">
+		  <h5>Example 10.4</h5>
+		
+		  <pre>...
+use std::cmp::Ordering;
+		    
+...
+
+impl PartialEq for Card {
+    fn eq(&amp;self, other: &amp;Self) -&gt; bool {
         self.rank == other.rank
     }
 }
@@ -95,7 +202,7 @@ fn main(){}
 impl Eq for Card {}
 
 impl PartialOrd for Card {
-    fn partial_cmp(&amp;self, other: &amp;Self) -> Option&lt;Ordering&gt; {
+    fn partial_cmp(&amp;self, other: &amp;Self) -&gt; Option&lt;Ordering&gt; {
         Some(self.cmp(&amp;other))
     }
 }
@@ -105,9 +212,37 @@ impl Ord for Card {
         self.rank.cmp(&amp;other.rank).reverse()
     }
 }
+
+fn main() {
+    let mut cards = Vec::new();
+    for rank in 2..=14 {
+        cards.push(Card::new(rank, Suit::Heart).unwrap());
+    }
+
+    cards.sort();
+    for card in cards{
+	println!("{:?}", card);
+    }
+}
 </pre>
 
-		<p>Now that we have implemented the Ord Trait, we now have the ability to sort a list of Cards. Please note that the <code>cmp</code> function uses the <code>reverse</code> method after comparing the name fields to make sure that the highest values get placed in front of the sorted list.</p>
+		  <h5>Output 10.4</h5>
+		  <pre>Card { rank: "A", suit: Heart }
+Card { rank: "K", suit: Heart }
+Card { rank: "Q", suit: Heart }
+Card { rank: "J", suit: Heart }
+Card { rank: "10", suit: Heart }
+Card { rank: "9", suit: Heart }
+Card { rank: "8", suit: Heart }
+Card { rank: "7", suit: Heart }
+Card { rank: "6", suit: Heart }
+Card { rank: "5", suit: Heart }
+Card { rank: "4", suit: Heart }
+Card { rank: "3", suit: Heart }
+Card { rank: "2", suit: Heart }</pre>
+		</div>
+		  
+		<p>Now that we have implemented the Ord Trait, we now have the ability to sort a list of Cards. Please note that the <code>cmp</code> function uses the <code>reverse</code> method after comparing the name fields to make sure that the highest values get placed in front of the sorted list. To demonstrate the sorted order, we updated the main function to put the cards we created into a list, call sort on the list and then print out the items of the list.</p>
 		  
 		  </section>
 		</section>
