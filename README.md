@@ -16,3 +16,16 @@ epub practical_sorting_in_rust/ --mode exp -v 3.0
 ```
 epub practical_sorting_in_rust/ --mode exp -v 3.0 --save
 ```
+
+## Terminal hacks
+### View xhtml file in the terminal
+Install [pandoc](https://pandoc.org/index.html) and use it to convert your file to plain text.
+```
+cat practical_sorting_in_rust/EPUB/ch10.xhtml | pandoc -f html  -t plain
+```
+
+With this trick, you can pipe the plain text version to wc and start gathering metrics.
+
+```
+cat practical_sorting_in_rust/EPUB/ch10.xhtml | pandoc -f html  -t plain | wc
+```
