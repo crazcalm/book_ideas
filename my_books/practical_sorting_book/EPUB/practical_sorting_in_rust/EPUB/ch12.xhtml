@@ -10,41 +10,19 @@
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
 		  <h2 id="c4_h" class="title">Chapter 12: Soting Poker Hands</h2>
 
-		  <p>Now that we have a method to determine our poker hand type, we can now sort our poker hands! Let's start off the <code>sort_hand</code> method.</p>
+		  <p>In order to sort a poker hand, we need to know what kind of poker hand type we have and which card ranks need to be prioritized during sorting. The poker hand type is important because it lets us know the sorting stategy that we should be using. For example, if your poker hand type is FourOfAKind, then we know that our sort should place the card rank that is repeated 4 times at the front of the list. However, if our poker hand type is a Flush, then our sorting strategy would be the default sorting strategy (High Card Sort) with no card ranks being prioritized. Notice that the difference between the soring strategies is mainly in the number of card ranks that need to be priorized during sorting; 0, 1 or 2 (Example - TwoPair).</p>
 
-		  <pre>    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
-        let _ = self.set_hand_type()?;
-        let card_rank_histogram = self.card_rank_histogram();
+		  <p>After you know which sorting strategy to use, we need to deduce which card ranks need to be proritized. Fortunate for us, we already did this work in the <code>card_rank_histogram</code> method. If 1 or 2 card ranks need to be prioritized for sorting, we can look at the first and second entries of the Vector returned from the <code>card_rank_histogram</code> method to know which card ranks need to be prioritized and which order they need to be prioritized in.</p>
 
-        let poker_hand_type = self.poker_hand_type.unwrap();
+		  <p>Now that we have all the information needed to sort our poker hand, let's outline the <code>sort_hand</code> method.</p>
+		  
+		  <!-- Left off here -->
+		  <div class="example">
+		    <h5>Example: 12.1</h5>
+		    
+		    <pre>...
 
-        match poker_hand_type {
-            PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
-                Ok(())
-            }
-            PokerHandType::RoyalFlush
-            | PokerHandType::StraightFlush
-            | PokerHandType::Flush
-            | PokerHandType::Straight
-            | PokerHandType::HighCard =&gt; {
-                Ok(())
-            }
-            PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; {
-                Ok(())
-            }
-        }
-    }
-</pre>
-
-		    <p>Our <code>sort_hand</code> method returns a <code>Result</code> Enum where the Ok variant is an empty unit, and the Err variant is a error string. As previously mentioned, when sorting poker hands, we need to know some information upfront. For our implementation, we need to know the poker hand type and, based on the poker hand type, which card ranks we need to prioritize.</p>
-
-		    <p>Our first line calls <code>self.set_hand_type()></code> method to set our poker hand type. This call returns a <code>Result</code> Enum. The <code>?</code> after the call allows us to unwrap the enum and, if it is ok, we return the value and, if it is Err, we use the Err as our return value for the <code>sort_hand</code> method.</p>
-
-		    <p>We then call <code>self.card_rank_histogram()</code>. This method gives us a list of the card ranks sorted by count (how many times the rank is represented in the list) and rank (a secondary sort that ensures that when the counts are equal, we will sort by rank in descending order). With regard to importance, this data contains the extra information we need to mplement some of the sorting algorithms we will be using in the method.</p>
-
-		    <p>Next, we call <code>self.poker_hand_type.unwrap()</code> so that we can set the poker hand type value to a local varaible for use throughout this method. One thing that we cannot overlook here is the <code>unwrap</code> call. Due to Rust Borrowing rules, unwrapping an enum typically means that we are taking ownership over the value in the enum. However, we do not want to do that here because, after the <code>sort_hand</code> method completes, we do not want <code>self.poker_hand_type</code> to be set to None. What we actually want to go is copy the value from <code>self.poker_hand_type</code> so that we have a local version of it and <code>self.poker_hand_type</code> still owns it.</p>
-
-		    <pre>#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone)]
 enum PokerHandType {
     RoyalFlush,
     StraightFlush,
@@ -54,125 +32,67 @@ enum PokerHandType {
     Straight,
     ThreeOfAKind,
     TwoPair,
-    Pair,
+    OnePair,
     HighCard,
 }
-</pre>
 
-		    <p>The bulk of the work done in the <code>sort_hand</code> method happens in te match statement. Our match statement is currently broken up into three sections. The first section consists of the poker hand types where srting them means that we have to prioritize one Card Rank. The second section consists of the poker hand types where we have to sort the cards by High Card Order and re-arrange them to handle edge cases. The third section consists of the poker hand types where we have to prioritize 2 Card ranks in a particular order.</p>
-
-		    <pre>    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
-        let _ = self.set_hand_type()?;
-        let card_rank_histogram = self.card_rank_histogram();
-
-        let poker_hand_type = self.poker_hand_type.unwrap();
-
-        match poker_hand_type {
-            PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
-                let priority_card_name = card_rank_histogram[0].0;
-
-                self.cards.sort_by(|a, b| {
-                    if a.name == priority_card_name &amp;&amp; b.name == priority_card_name {
-                        Ordering::Equal
-                    } else if a.name == priority_card_name &amp;&amp; b.name != priority_card_name {
-                        Ordering::Less
-                    } else if a.name != priority_card_name &amp;&amp; b.name == priority_card_name {
-                        Ordering::Greater
-                    } else {
-                        a.cmp(&amp;b)
-                    }
-                });
-
-                Ok(())
-            }
-            PokerHandType::RoyalFlush
-            | PokerHandType::StraightFlush
-            | PokerHandType::Flush
-            | PokerHandType::Straight
-            | PokerHandType::HighCard =&gt; {
-                Ok(())
-            }
-            PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; {
-                Ok(())
-            }
-        }
-    }
-</pre>
-
-		      <p>Filling in the first section, we identify the card rank we want to prioritize. Then we call <code>sort_by</code> on our Vector of Cards and pass in a function that prioritizes out wanted Card Rank. Once we are done, we return Ok.</p>
-
-		      <pre>    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
-        let _ = self.set_hand_type()?;
-        let card_rank_histogram = self.card_rank_histogram();
-
-        let poker_hand_type = self.poker_hand_type.unwrap();
-
-        match poker_hand_type {
-            PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
-                let priority_card_name = card_rank_histogram[0].0;
-
-                self.cards.sort_by(|a, b| {
-                    if a.name == priority_card_name &amp;&amp; b.name == priority_card_name {
-                        Ordering::Equal
-                    } else if a.name == priority_card_name &amp;&amp; b.name != priority_card_name {
-                        Ordering::Less
-                    } else if a.name != priority_card_name &amp;&amp; b.name == priority_card_name {
-                        Ordering::Greater
-                    } else {
-                        a.cmp(&amp;b)
-                    }
-                });
-
-                Ok(())
-            }
-            PokerHandType::RoyalFlush
-            | PokerHandType::StraightFlush
-            | PokerHandType::Flush
-            | PokerHandType::Straight
-            | PokerHandType::HighCard =&gt; {
-                self.cards.sort();
-
-                if poker_hand_type == PokerHandType::StraightFlush
-                    || poker_hand_type == PokerHandType::Straight
-                {
-                    // In the case where the straight is Ace, 5, 4 ,3, 2, 1, we need to list
-                    // the left by 1 -> 5, 4, 3, 2, Ace
-                    if self.cards[0].name == 14 &amp;&amp; self.cards[1].name == 5 {
-                        self.cards.rotate_left(1);
-                    }
-                }
-
-                Ok(())
-            }
-            PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; {
-                Ok(())
-            }
-        }
-    }
-</pre>
-
-			<p>Filling in the second section, we start off by sorting our Cards, which will put them in High Card order. Then we need to check for the edge cases where like us having <code>[14, 5, 4, 3, 2]</code> instead of <code>[5, 4, 3, 2, 14]</code>. We do this by using an <code>if</code> statement to see if our poker hand type is a Stright or a StrightFlush. If so, we then check the first two cards of our sorted list. If they are 14 and 5, we know that we need to move the 14 to the end of the list.</p>
+...
 		      
-			<p>With regard to moving the 14 to the end of the list, Vectors have rotate functions. We call <code>self.cards.rotate_left(1)</code> which moves everything in the list left by one space. When this happens, the item in the left most posistion (14), gets moved to the right most position in the list.</p>
+impl PokerHand {
+    ...
 
-			<p>After the edge case is handled, we return Ok.</p>
-
-			<pre>    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
+    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
         let _ = self.set_hand_type()?;
-        let card_rank_histogram = self.card_rank_histogram();
-
-        let poker_hand_type = self.poker_hand_type.unwrap();
+        let poker_hand_type = self.poker_hand_type.clone().unwrap();
+	let card_rank_histogram = self.card_rank_histogram();
 
         match poker_hand_type {
-            PokerHandType::Pair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind => {
-                let priority_card_name = card_rank_histogram[0].0;
+            PokerHandType::OnePair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
+                Ok(())
+            }
+            PokerHandType::RoyalFlush
+            | PokerHandType::StraightFlush
+            | PokerHandType::Flush
+            | PokerHandType::Straight
+            | PokerHandType::HighCard =&gt; Ok(()),
+            PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; Ok(()),
+        }
+    }
+}
+
+</pre>
+		  </div>
+
+		  <p>Our <code>sort_hand</code> method acts on a mutable reference to self and returns a <code>Result</code> Enum where the Ok variant is an empty unit, and the Err variant is a error string. Our first line calls <code>self.set_hand_type()></code> method to set our poker hand type. This call returns a <code>Result</code> Enum. The <code>?</code> after the call allows us to unwrap the enum and, if it is ok, we return the value and, if it is Err, we use the Err as our return value for the <code>sort_hand</code> method. You may notice that we set assigned the return value to <code>_</code>. We do this because we do not need to use the returned value, which is an empty unit. Instead, what we need from this call is the side effect which is when it modifies <code>self</code> and sets the poker hand type. Once the poker hand type is set, we clone it and set it to a local variable in our method. It should be noted that we cloned that poker hand type prior to unwrapping it because we wanted <code>self</code> to maintain ownership of that value. We can accomplish this goal by either referencing the variable or creating a duplicate of the vairable and, for our purposes, creating a duplicate seemed cleaner. In order to make this work, we had to derive the Clone trait for PokerHandType.</p>
+
+		    <p>We then call <code>self.card_rank_histogram()</code>. This method gives us a list of the card ranks sorted by count (how many times the rank is represented in the list) and rank (a secondary sort that ensures that when the counts are equal, we will sort by rank in descending order). With regard to importance, this data contains the extra information we need to mplement some of the sorting algorithms we will be using in the method.</p>
+
+
+		    <p>The bulk of the work done in the <code>sort_hand</code> method happens in the match statement. Our match statement is currently broken up into three sections. The first section consists of the poker hand types where sorting them means that we have to prioritize one Card Rank. The second section consists of the poker hand types where we have to sort the cards by High Card Order and re-arrange them to handle edge cases. The third section consists of the poker hand types where we have to prioritize 2 Card ranks in a particular order.</p>
+
+		  <p>Let's implement the first section of the match statement.</p>
+		  <div class="example">
+		    <h5>Example: 12.2</h5>
+		    <pre>...
+
+impl PokerHand {
+    ...
+
+    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
+        let _ = self.set_hand_type()?;
+        let poker_hand_type = self.poker_hand_type.clone().unwrap();
+        let card_rank_histogram = self.card_rank_histogram();
+
+        match poker_hand_type {
+            PokerHandType::OnePair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
+                let priority_card_rank = card_rank_histogram[0].0;
 
                 self.cards.sort_by(|a, b| {
-                    if a.name == priority_card_name &amp;&amp; b.name == priority_card_name {
+                    if a.rank == priority_card_rank &amp;&amp; b.rank == priority_card_rank {
                         Ordering::Equal
-                    } else if a.name == priority_card_name &amp;&amp; b.name != priority_card_name {
+                    } else if a.rank == priority_card_rank &amp;&amp; b.rank != priority_card_rank {
                         Ordering::Less
-                    } else if a.name != priority_card_name &amp;&amp; b.name == priority_card_name {
+                    } else if a.rank != priority_card_rank &amp;&amp; b.rank == priority_card_rank {
                         Ordering::Greater
                     } else {
                         a.cmp(&amp;b)
@@ -180,6 +100,77 @@ enum PokerHandType {
                 });
 
                 Ok(())
+            }
+            PokerHandType::RoyalFlush
+            | PokerHandType::StraightFlush
+            | PokerHandType::Flush
+            | PokerHandType::Straight
+            | PokerHandType::HighCard =&gt; Ok(()),
+            PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; Ok(()),
+        }
+    }
+}
+
+fn main() {
+    let mut hand = PokerHand::new();
+    hand.add_card(Card::new(2, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(3, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(4, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(2, Suit::Club).unwrap()).unwrap();
+    hand.add_card(Card::new(14, Suit::Heart).unwrap()).unwrap();
+
+    let _ = hand.sort_hand().unwrap();
+    println!("{:#?}", hand);
+}
+		    </pre>
+		    <h5>Output: 12.2</h5>
+		    <pre>PokerHand {
+    cards: [
+        Card {
+            rank: "2",
+            suit: Heart,
+        },
+        Card {
+            rank: "2",
+            suit: Club,
+        },
+        Card {
+            rank: "A",
+            suit: Heart,
+        },
+        Card {
+            rank: "4",
+            suit: Heart,
+        },
+        Card {
+            rank: "3",
+            suit: Heart,
+        },
+    ],
+    poker_hand_type: Some(
+        OnePair,
+    ),
+}
+</pre>
+		  </div>
+		  
+		      <p>Filling in the first section, we identify the card rank we want to prioritize. Then we call <code>sort_by</code> on our Vector of Cards and pass in a function that prioritizes our wanted Card Rank by considering the 4 cases; <code>a</code> and <code>b</code> are the prioritized card rank, either <code>a</code> or <code>b</code> are the prioritized card rank or niether <code>a</code> or <code>b</code> are the prioritized card rank. Once we are done, we return Ok.</p>
+
+		      <div class="example">
+			<h5>Example 12.3</h5>
+			<pre>...
+
+impl PokerHand {
+    ...
+
+    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
+        let _ = self.set_hand_type()?;
+        let poker_hand_type = self.poker_hand_type.clone().unwrap();
+        let card_rank_histogram = self.card_rank_histogram();
+
+        match poker_hand_type {
+            PokerHandType::OnePair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
+		...
             }
             PokerHandType::RoyalFlush
             | PokerHandType::StraightFlush
@@ -193,33 +184,102 @@ enum PokerHandType {
                 {
                     // In the case where the straight is Ace, 5, 4 ,3, 2, 1, we need to list
                     // the left by 1 -&gt; 5, 4, 3, 2, Ace
-                    if self.cards[0].name == 14 &amp;&amp; self.cards[1].name == 5 {
+                    if self.cards[0].rank == 14 &amp;&amp; self.cards[1].rank == 5 {
                         self.cards.rotate_left(1);
                     }
                 }
-
                 Ok(())
+            },
+            PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; Ok(()),
+        }
+    }
+}
+
+fn main() {
+    let mut hand = PokerHand::new();
+    hand.add_card(Card::new(14, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(5, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(2, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(3, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(4, Suit::Heart).unwrap()).unwrap();
+
+    let _ = hand.sort_hand().unwrap();
+    println!("{:#?}", hand);
+}</pre>
+			<h5>Output 12.3</h5>
+			<pre>PokerHand {
+    cards: [
+        Card {
+            rank: "5",
+            suit: Heart,
+        },
+        Card {
+            rank: "4",
+            suit: Heart,
+        },
+        Card {
+            rank: "3",
+            suit: Heart,
+        },
+        Card {
+            rank: "2",
+            suit: Heart,
+        },
+        Card {
+            rank: "A",
+            suit: Heart,
+        },
+    ],
+    poker_hand_type: Some(
+        StraightFlush,
+    ),
+}
+</pre>
+		      </div>
+
+			<p>Filling in the second section, we start off by sorting our Cards, which will put them in High Card order. Then we need to check for the edge cases where like us having <code>[14, 5, 4, 3, 2]</code> instead of <code>[5, 4, 3, 2, 14]</code>. We do this by using an <code>if</code> statement to see if our poker hand type is a Stright or a StrightFlush. If so, we then check the first two cards of our sorted list. If they are 14 and 5, we know that we need to move the 14 to the end of the list. With regard to moving the 14 to the end of the list, Vectors have rotate functions. We call <code>self.cards.rotate_left(1)</code> which moves everything in the list left by one space. When this happens, the item in the left most posistion (14), gets moved to the right most position in the list. After the edge case is handled, we return Ok.</p>
+			<div class="example">
+			  <h5>Example 12.4</h5>
+			  <pre>...
+impl PokerHand {
+    ...
+	
+    fn sort_hand(&amp;mut self) -&gt; Result&lt;(), String&gt; {
+        let _ = self.set_hand_type()?;
+        let poker_hand_type = self.poker_hand_type.clone().unwrap();
+        let card_rank_histogram = self.card_rank_histogram();
+
+        match poker_hand_type {
+	    PokerHandType::OnePair | PokerHandType::ThreeOfAKind | PokerHandType::FourOfAKind =&gt; {
+		...
             }
+            PokerHandType::RoyalFlush
+            | PokerHandType::StraightFlush
+            | PokerHandType::Flush
+            | PokerHandType::Straight
+            | PokerHandType::HighCard =&gt; {
+                ...
+            },
             PokerHandType::FullHouse | PokerHandType::TwoPair =&gt; {
-                let priority_1 = card_rank_histogram[0].0;
+		let priority_1 = card_rank_histogram[0].0;
                 let priority_2 = card_rank_histogram[1].0;
 
                 self.cards.sort_by(|a, b| {
-                    if a.name == priority_1 &amp;&amp; b.name == priority_1 {
+                    if a.rank == priority_1 &amp;&amp; b.rank == priority_1 {
                         a.cmp(&amp;b)
-                    } else if a.name == priority_1 &amp;&amp; b.name == priority_2 {
+                    } else if a.rank == priority_1 &amp;&amp; b.rank == priority_2 {
                         Ordering::Less
-                    } else if a.name == priority_2 &amp;&amp; b.name == priority_1 {
+                    } else if a.rank == priority_2 &amp;&amp; b.rank == priority_1 {
                         Ordering::Greater
-                    } else if a.name == priority_2 &amp;&amp; b.name == priority_2 {
+                    } else if a.rank == priority_2 &amp;&amp; b.rank == priority_2 {
                         a.cmp(&amp;b)
-                    } else if a.name == priority_1 &amp;&amp; b.name != priority_1 &amp;&amp; b.name != priority_2 {
+                    } else if a.rank == priority_1 &amp;&amp; b.rank != priority_1 &amp;&amp; b.rank != priority_2 {
                         Ordering::Less
-                    } else if a.name == priority_2 &amp;&amp; b.name != priority_1 &amp;&amp; b.name != priority_2 {
+                    } else if a.rank == priority_2 &amp;&amp; b.rank != priority_1 &amp;&amp; b.rank != priority_2 {
                         Ordering::Less
-                    } else if a.name != priority_1 &amp;&amp; a.name != priority_2 &amp;&amp; b.name == priority_1 {
+                    } else if a.rank != priority_1 &amp;&amp; a.rank != priority_2 &amp;&amp; b.rank == priority_1 {
                         Ordering::Greater
-                    } else if a.name != priority_1 &amp;&amp; a.name != priority_2 &amp;&amp; b.name == priority_2 {
+                    } else if a.rank != priority_1 &amp;&amp; a.rank != priority_2 &amp;&amp; b.rank == priority_2 {
                         Ordering::Greater
                     } else {
                         a.cmp(&amp;b)
@@ -227,14 +287,56 @@ enum PokerHandType {
                 });
 
                 Ok(())
-            }
+	    },
         }
     }
+}
+
+fn main() {
+    let mut hand = PokerHand::new();
+    hand.add_card(Card::new(3, Suit::Club).unwrap()).unwrap();
+    hand.add_card(Card::new(2, Suit::Diamond).unwrap()).unwrap();
+    hand.add_card(Card::new(2, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(3, Suit::Heart).unwrap()).unwrap();
+    hand.add_card(Card::new(2, Suit::Club).unwrap()).unwrap();
+
+    let _ = hand.sort_hand().unwrap();
+    println!("{:#?}", hand);
+}</pre>
+			  <h5>Output 12.4</h5>
+			  <pre>PokerHand {
+    cards: [
+        Card {
+            rank: "2",
+            suit: Diamond,
+        },
+        Card {
+            rank: "2",
+            suit: Heart,
+        },
+        Card {
+            rank: "2",
+            suit: Club,
+        },
+        Card {
+            rank: "3",
+            suit: Club,
+        },
+        Card {
+            rank: "3",
+            suit: Heart,
+        },
+    ],
+    poker_hand_type: Some(
+        FullHouse,
+    ),
+}
 </pre>
+			</div>
+			
+			  <p>When filling in the final section, we follow the same steps we did in the first section, but we now we prioritize 2 card ranks instead of 1. The code starts off with us getting the card ranks we are going to prioritize; <code>priority_1</code> and <code>priority_2</code>. We then call <code>sort_by</code> on our Vector of cards and pass it a function that will prioritize <code>priority_1</code> and <code>priority_2</code> with respect to each other and all the other cards. This function does have a number of if statements to cover the comparison cases, but you can think of it like this.</p>
 
-			  <p>When filling in the final section, we follow the same steps we did i the first section, but we now do it for 2 cards instead of 1. The code starts off with us getting the card ranks we are going to prioritize; priority_1 and priority_2. We then call <code>sort_by</code> on our Vector of cards and pass it a function that will prioritize priority_1 and priority_2 with respect to each other and all the other cards. This function does have a number of if statements to cover the comparison cases, but you can think of it like this.</p>
-
-			  <p>When comparing a and b, if a is priority_1, then b can be proiority_1, priority_2 or other. If a is priority_2, then b can be priority_1, priority_2 or other. If a is other, then b can be priority_1, priority_2, or other. Once we handle these 9 cases, we are then able to sort our cards with respect to priority_1 and priority_2.</p>
+			  <p>When comparing <code>a</code> and <code>b</code>, if <code>a</code> is <code>priority_1</code>, then <code>b</code> can be <code>priority_1</code>, <code>priority_2</code> or other. If <code>a</code> is <code>priority_2</code>, then <code>b</code> can be <code>priority_1</code>, <code>priority_2</code> or other. If <code>a</code> is other, then <code>b</code> can be <code>priority_1</code>, <code>priority_2</code>, or other. Once we handle these 9 cases, we are then able to sort our cards with respect to <code>priority_1</code> and <code>priority_2</code>.</p>
 		    
 		  
 		</section>
