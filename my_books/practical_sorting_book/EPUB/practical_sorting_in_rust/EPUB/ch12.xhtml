@@ -8,7 +8,7 @@
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-		  <h2 id="c4_h" class="title">Chapter 12: Soting Poker Hands</h2>
+		  <h2 id="c4_h" class="title">Chapter 12: Sorting Poker Hands</h2>
 
 		  <p>In order to sort a poker hand, we need to know what kind of poker hand type we have and which card ranks need to be prioritized during sorting. The poker hand type is important because it lets us know the sorting stategy that we should be using. For example, if your poker hand type is FourOfAKind, then we know that our sort should place the card rank that is repeated 4 times at the front of the list. However, if our poker hand type is a Flush, then our sorting strategy would be the default sorting strategy (High Card Sort) with no card ranks being prioritized. Notice that the difference between the soring strategies is mainly in the number of card ranks that need to be priorized during sorting; 0, 1 or 2 (Example - TwoPair).</p>
 
@@ -24,17 +24,18 @@
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone)]
 enum PokerHandType {
-    RoyalFlush,
-    StraightFlush,
-    FourOfAKind,
-    FullHouse,
-    Flush,
-    Straight,
-    ThreeOfAKind,
-    TwoPair,
-    OnePair,
     HighCard,
+    OnePair,
+    TwoPair,
+    ThreeOfAKind,
+    Straight,
+    Flush,
+    FullHouse,
+    FourOfAKind,
+    StraightFlush,
+    RoyalFlush,
 }
+
 
 ...
 		      

@@ -3,13 +3,132 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"
 	lang="en">
 	<head>
-		<title>Chapter 9: Implementing our Traits</title>
+		<title>Chapter 13: Testing Poker Hand</title>
 		<link rel="stylesheet" type="text/css" href="css/epub.css" />
 	</head>
 	<body>
 		<section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c4_h" id="conclusion">
-		  <h2 id="c4_h" class="title">Chapter 9: Implementing our Traits</h2>
+		  <h2 id="c4_h" class="title">Chapter 13: Testing Poker Hand</h2>
 
+
+		  <p>Before moving on to the actual sorting of poker hands, we will write unit tests to verify that the code we currently have works the way we expect it to. The bulk of our PokerHand logic involves looking at our 5 cards using the <code>sort_hand</code> method to deduce and set the poker hand type and sort the cards using the appropriate sorting algorithm. With regard to testing this code like this, my preferred approach is table testing because we are testing one method with many different variations of inputs/start states.</p>
+
+		  <div class="example">
+		    <h5>Example 13.1</h5>
+		    <pre>...
+
+#[derive(Debug, PartialEq, Eq)]
+struct PokerHand {
+    cards: Vec&lt;Card&gt;,
+    poker_hand_type: Option&lt;PokerHandType&gt;,
+}
+
+...
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn poker_hand_sort_hand() {
+        let cases = vec![
+            (
+                "One Pair",
+                PokerHand {
+                    poker_hand_type: None,
+                    cards: vec![
+                        Card::new(2, Suit::Club).unwrap(),
+                        Card::new(10, Suit::Diamond).unwrap(),
+                        Card::new(14, Suit::Spade).unwrap(),
+                        Card::new(2, Suit::Heart).unwrap(),
+                        Card::new(9, Suit::Club).unwrap(),
+                    ],
+                },
+                PokerHand {
+                    poker_hand_type: Some(PokerHandType::OnePair),
+                    cards: vec![
+                        Card::new(2, Suit::Club).unwrap(),
+                        Card::new(2, Suit::Heart).unwrap(),
+                        Card::new(14, Suit::Spade).unwrap(),
+                        Card::new(10, Suit::Diamond).unwrap(),
+                        Card::new(9, Suit::Club).unwrap(),
+                    ],
+                },
+            ),
+            ...
+            (
+                "Four of a Kind",
+                PokerHand {
+                    poker_hand_type: None,
+                    cards: vec![
+                        Card::new(2, Suit::Club).unwrap(),
+                        Card::new(10, Suit::Diamond).unwrap(),
+                        Card::new(2, Suit::Spade).unwrap(),
+                        Card::new(2, Suit::Heart).unwrap(),
+                        Card::new(2, Suit::Club).unwrap(),
+                    ],
+                },
+                PokerHand {
+                    poker_hand_type: Some(PokerHandType::FourOfAKind),
+                    cards: vec![
+                        Card::new(2, Suit::Club).unwrap(),
+                        Card::new(2, Suit::Heart).unwrap(),
+                        Card::new(2, Suit::Spade).unwrap(),
+                        Card::new(2, Suit::Club).unwrap(),
+                        Card::new(10, Suit::Diamond).unwrap(),
+                    ],
+                },
+            ),
+	    ...
+            (
+                "Royal Flush",
+                PokerHand {
+                    poker_hand_type: None,
+                    cards: vec![
+                        Card::new(12, Suit::Club).unwrap(),
+                        Card::new(14, Suit::Club).unwrap(),
+                        Card::new(10, Suit::Club).unwrap(),
+                        Card::new(13, Suit::Club).unwrap(),
+                        Card::new(11, Suit::Club).unwrap(),
+                    ],
+                },
+                PokerHand {
+                    poker_hand_type: Some(PokerHandType::RoyalFlush),
+                    cards: vec![
+                        Card::new(14, Suit::Club).unwrap(),
+                        Card::new(13, Suit::Club).unwrap(),
+                        Card::new(12, Suit::Club).unwrap(),
+                        Card::new(11, Suit::Club).unwrap(),
+                        Card::new(10, Suit::Club).unwrap(),
+                    ],
+                },
+            ),
+            ...
+        ];
+
+        for (name, mut poker_hand, expected) in cases {
+            poker_hand.sort_hand().unwrap();
+            assert_eq!(poker_hand, expected, "Case {name} failed");
+        }
+    }
+}
+
+
+			</pre>
+
+		    <h5>Output 13.1</h5>
+		    <pre>running 1 test
+test tests::poker_hand_sort_hand ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s</pre>
+		  </div>
+
+		  <!-- Left off here -->
+		  
+
+		  <!-- Old stuff is below -->
+
+		  
 		  <p>Lets walk through the work needed to implement the Ord Trait for our Employee Struct so that we can gain a better understanding of what is happening. We will approach this systematically by writing unit tests for the desired order and then implementing each trait one at a time while also removing it from the derived Trait list.</p>
 
 		  <p>For this example, we want our list of Employees to be sorted by years of service and then by name. With that in mind, here is the unit test that we will use to verify that our changes have not affected our sorting.</p>

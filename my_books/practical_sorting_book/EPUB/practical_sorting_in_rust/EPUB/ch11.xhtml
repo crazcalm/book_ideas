@@ -35,16 +35,16 @@
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
 enum PokerHandType {
-    RoyalFlush,
-    StraightFlush,
-    FourOfAKind,
-    FullHouse,
-    Flush,
-    Straight,
-    ThreeOfAKind,
-    TwoPair,
-    OnePair,
     HighCard,
+    OnePair,
+    TwoPair,
+    ThreeOfAKind,
+    Straight,
+    Flush,
+    FullHouse,
+    FourOfAKind,
+    StraightFlush,
+    RoyalFlush,
 }
 
 #[derive(Debug)]
@@ -70,7 +70,7 @@ fn main(){
 		    <h5>Output 11.1</h5>
 		    <pre>PokerHand { cards: [], poker_hand_type: None }</pre>
 		  </div>
-		      <p>We made the PokerHandType an enum where the variants are the different poker hands types. We also order the poker hand variants from the best hand to the worst hand. We did this so that we can use the derived implementations of the Ord Trait and all the other traits needed to implement the Ord Trait. This is our first time doing this with Enums, but it works the same way as it does with Structs. This means we can now compare and sort the varaints of our PokerHandType enum and, because we defined them in the order of best hand to worst hand, sorting will always place the better hands at the front of the list.</p>
+		  <p>We made the PokerHandType an enum where the variants are the different poker hands types. We also order the poker hand variants from the worst hand to the best hand. We did this so that we can use the derived implementations of the Ord Trait and all the other traits needed to implement the Ord Trait. This is our first time doing this with Enums, but it works the same way as it does with Structs. This means we can now compare and sort the varaints of our PokerHandType enum and, because we defined them in the order of worst hand to best hand, this means that when we compare two poker hands, the hand with the better poker hand type will be greater than the other hand regardless of which cards each hand holds. This also means that when sorting a list of poker hands, hands with a better poker hand type will be placed at the end of the list.</p>
 
 		      <p>For our PokerHand Struct, we have our Vector of Cards and a Optional PokerHandType Enum. The PokerHandType is optional because it needs to be deduced after we have all five Cards in our hand.We also have a function called <code>new</code> responsible for initializing empty PokerHands with no poker hand type. With that in mind, lets create an <code>add_card</code> method to fill our poker hand with cards.</p>
 
