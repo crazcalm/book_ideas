@@ -4,7 +4,7 @@
 ### Epub command stuff:
 [epubcheck](https://github.com/w3c/epubcheck) is the actual command, but I have it aliased as `epub` on one of my machines.
 
-Note: You will have to manually install the command to get an up to date version of it.
+Note: You will have to manually install the command to get an up to date version of it. This will require instAalling Java, Mavan and creating an alias that looks like this: `alias epub='java -jar ~/Github/epubcheck/target/epubcheck.jar'`
 
 
 ### Check epub format:
